@@ -18,9 +18,7 @@ class Word:
     def getTranslatedAudio(self):
         return self.translatedAudio
     
-
-
-test= Word("hi","marhaba","path1","path2")
-word1 = test.getEnglishWord()
-word2 = test.getEnglishAudio()
-print(word1, word2)
+#test= Word("hi","marhaba","path1","path2")
+#word1 = test.getEnglishWord()
+#word2 = test.getEnglishAudio()
+#print(word1, word2)

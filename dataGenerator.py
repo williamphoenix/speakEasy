@@ -10,8 +10,6 @@ for i in range(len(test)):
         
 class dataGenerator:
 
-
-
     precompiledDict = testDict
 
     def __init__():
@@ -34,10 +32,10 @@ class dataGenerator:
         return dataGenerator.precompiledDict[key][2]
     
 
-print("This is the test csv dataframe: \n", test, "\n",
-      "This is the dictionary test: \n", testDict, "\n",
-      dataGenerator.getEnglishWord("Hello"), "\n",
-      dataGenerator.getTranslatedWord("Apple"), "\n",
-      dataGenerator.getEnglishAudio("House"), "\n",
-      dataGenerator.getTranslatedAudio("Hello"), "\n",
-      )
+#print("This is the test csv dataframe: \n", test, "\n",
+#      "This is the dictionary test: \n", testDict, "\n",
+#      dataGenerator.getEnglishWord("Hello"), "\n",
+#      dataGenerator.getTranslatedWord("Apple"), "\n",
+#      dataGenerator.getEnglishAudio("House"), "\n",
+#      dataGenerator.getTranslatedAudio("Hello"), "\n",
+#      )
