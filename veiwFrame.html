@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Page</title>
+    <title>Speakeasy</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
 </head>
 <body>
     <h1>Speakeasy</h1>
-    
+<div id="controls">
     <button onclick="startFunction()">Start</button>
     
     <br><br>
@@ -34,10 +34,10 @@
         <option value="option2">Arabic</option>
         <option value="option3">Piglatin</option>
     </select>
-    
+</div>
     <script>
         function startFunction() {
-            alert("Start button clicked!");
+            document.getElementById("controls").style.display = "none"
         }
     </script>
 </body>
