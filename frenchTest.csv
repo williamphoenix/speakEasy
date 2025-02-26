@@ -1,0 +1,4 @@
+EnglishWord,TranslatedWord,EnglishAudio,TranslatedAudio
+Hello,Bonjour,./EnglishAudio/Hello.mp3,./TranslatedAudio/Bonjour.mp3
+Apple,Pomme,./EnglishAudio/Apple.mp3,./TranslatedAudio/Pomme.mp3
+House,Maison,./EnglishAudio/House.mp3,./TranslatedAudio/Maison.mp3
