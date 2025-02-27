@@ -1,10 +1,12 @@
 from Word import Word
- 
+from Model import Model
 from flask import Flask, request, jsonify
 
 from flask import send_from_directory
 
-from flask_cors import CORS    
+from flask_cors import CORS 
+import webbrowser
+import threading   
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +14,7 @@ CORS(app)
 @app.route('/')
 def index():
     # Serve the HTML file
+    webbrowser.open("127.0.0.1:5000")
     return send_from_directory('static', 'viewFrame.html')
 
 
@@ -26,11 +29,14 @@ class Controller:
     def __init__(self):
         self.lessonRunning = False
         self.lessonLanguage = "NA"
+        self.model = Model(Word("hi","salut","hi.mp3","salut.mp3"))
+        self.startButtonPressed("French")
 
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
-            currentWord = self.getRandomWord()#change via model once implemented
+            currentWord = self.model.getRandomWord() #change via model once implemented
+            print("currentWord is:", currentWord.getEnglishWord())
 
 
 
@@ -57,7 +63,7 @@ class Controller:
             
         return 0
 
-    def startLessonButtonPressed(self, language):
+    def startButtonPressed(self, language):
         self.lessonLanguage = language
         self.lessonRunning = True
         self.runLesson()
@@ -77,6 +83,12 @@ class Controller:
 
 controller = Controller() 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+def open_browser():
+    # Wait for a moment to make sure the server is up
+    import time
+    time.sleep(1.5)
+    webbrowser.open('http://127.0.0.1:5000/')
 
+if __name__ == '__main__':
+    threading.Thread(target=open_browser).start() #The Thread opens the browser
+    app.run(debug=True, port=5000) #Neccessary to run the flask server
