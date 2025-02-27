@@ -19,6 +19,9 @@
             padding: 10px;
             font-size: 16px;
         }
+        #translationSection {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -35,9 +38,35 @@
         <option value="option3">Piglatin</option>
     </select>
 </div>
+
+<div id="translationSection">
+    <h2>Translate the following word:</h2>
+    <p id="wordToTranslate">Bonjour</p>
+    <button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>
+    <br><br>
+    <button onclick="goBack()">Back</button>
+</div>
+
+
     <script>
         function startFunction() {
-            document.getElementById("controls").style.display = "none"
+            document.getElementById("controls").style.display = "none";
+            document.getElementById("translationSection").style.display = "block";
+            document.getElementById("wordToTranslate").innerText = "Bonjour";
+        }
+
+        function startRecording() {
+            alert("recording started...");
+        }
+
+        function stopRecording(){
+            alert("Recording stopped.");
+        }
+
+        function goBack(){
+            document.getElementById("controls").style.display = "block";
+            document.getElementById("translationSection").style.display = "none";
         }
     </script>
 </body>
