@@ -1,11 +1,19 @@
-hi = dict(apple=[1,2,3],banana=[4,5,6],orange=[7,8,9])
+import pandas as pd
 
+test = pd.read_csv("frenchTest.csv")
+testDict = dict()
+for i in range(len(test)):
+    testDict.setdefault(test["EnglishWord"][i],
+                    [test["TranslatedWord"][i],
+                    test["EnglishAudio"][i],
+                    test["TranslatedAudio"][i]])
+        
 class dataGenerator:
 
-    precompiledDict = hi
+    precompiledDict = testDict
 
     def __init__():
-        print("classes dictionary is set to 'hi'")
+        print("classes dictionary is set to 'testDict'")
 
     @staticmethod
     def getEnglishWord(key):
@@ -24,12 +32,10 @@ class dataGenerator:
         return dataGenerator.precompiledDict[key][2]
     
 
-test = dataGenerator
-
-print(test, "\n",
-      hi, "\n",
-      dataGenerator.getEnglishWord("apple"), "\n",
-      dataGenerator.getTranslatedWord("banana"), "\n",
-      dataGenerator.getEnglishAudio("apple"), "\n",
-      dataGenerator.getTranslatedAudio("orange"), "\n",
-      )
+#print("This is the test csv dataframe: \n", test, "\n",
+#      "This is the dictionary test: \n", testDict, "\n",
+#      dataGenerator.getEnglishWord("Hello"), "\n",
+#      dataGenerator.getTranslatedWord("Apple"), "\n",
+#      dataGenerator.getEnglishAudio("House"), "\n",
+#      dataGenerator.getTranslatedAudio("Hello"), "\n",
+#      )

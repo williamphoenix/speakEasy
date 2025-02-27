@@ -9,12 +9,15 @@ class Controller:
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
-            currentWord = "NULL"
-            #currentWord = Model.getRandomWord() (not yet implemented)
+            currentWord = self.getRandomWord()#change via model once implemented
+
+
 
             #sends randomly generated word to the view
 
             #recieves user responce from view
+
+            userResponse = self.getUserInput()#temp
 
             #sends user responce to the model
 
@@ -22,7 +25,7 @@ class Controller:
 
             #check for stop command
 
-            if(1):#check if correct
+            if(userResponse == currentWord.getTranslatedWord()):#check if correct
                 print("got here")
                 #send correct signal to view
                 return 0
@@ -42,6 +45,14 @@ class Controller:
     def stopButtonPressed(self):
         self.lessonRunning = False
         print("Lesson stopped")
+
+    def getRandomWord(self): #temporary
+        randomWord = Word("Hello","Bonjour","EnglishAudio/Hello.mp3","TranslatedAudio/Bonjour.mp3")
+        return randomWord
+    
+    def getUserInput(self): #temporary
+        return "Bonjour"
+
 
 controller = Controller() 
 controller.stopButtonPressed()  
