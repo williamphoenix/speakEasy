@@ -64,9 +64,21 @@
             alert("Recording stopped.");
         }
 
+        function stopLesson() {
+            fetch('/stop-lesson', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+
         function goBack(){
+            stopLesson();
             document.getElementById("controls").style.display = "block";
             document.getElementById("translationSection").style.display = "none";
+
         }
     </script>
 </body>
