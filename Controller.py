@@ -44,15 +44,13 @@ class Controller:
 
             #recieves user responce from view
 
-            userResponse = self.getUserInput()#temp
-
             #sends user responce to the model
 
             #gets processed word as text from Model
 
             #check for stop command
 
-            if(userResponse == currentWord.getTranslatedWord()):#check if correct
+            if("tempString" == currentWord.getTranslatedWord()):#check if correct
                 print("got here")
                 #send correct signal to view
                 return 0
