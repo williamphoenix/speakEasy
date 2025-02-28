@@ -1,14 +1,17 @@
 from Word import Word
 from dataGenerator import dataGenerator
 import random
+from SpeechToText import SpeechToText
 
 class Model:
-    def __init__(self, Word):
-        self.currentWord = Word
+    def __init__(self):
+        pass
         #print("currentWord is", self.currentWord) (Test)
 
-    def checkTranslation(mp3Path):
-        pass
+    def checkTranslation(mp3Path, correctAnswer):
+        userAnswer = SpeechToText.audioToString(mp3Path)
+        userScore = (userAnswer.strip().lower() == correctAnswer.strip().lower())
+        return userScore
 
     def getRandomWord(self):
         randomWord = random.choice(list(dataGenerator.precompiledDict.keys()))

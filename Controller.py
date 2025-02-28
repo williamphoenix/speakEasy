@@ -29,7 +29,7 @@ class Controller:
     def __init__(self):
         self.lessonRunning = False
         self.lessonLanguage = "NA"
-        self.model = Model(Word("hi","salut","hi.mp3","salut.mp3"))
+        self.model = Model()
         self.startButtonPressed("French")
 
     def runLesson(self):
