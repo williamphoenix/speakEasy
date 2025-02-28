@@ -72,23 +72,15 @@ class Controller:
         self.lessonRunning = False
         print("Lesson stopped")
         return {"status": "stopped", "message": "Lesson stopped"}
-        
-
-    def getRandomWord(self): #temporary
-        randomWord = Word("Hello","Bonjour","EnglishAudio/Hello.mp3","TranslatedAudio/Bonjour.mp3")
-        return randomWord
-    
-    def getUserInput(self): #temporary
-        return "Bonjour"
 
 controller = Controller() 
 
-def open_browser():
+def openBrowser():
     # Wait for a moment to make sure the server is up
     import time
     time.sleep(1.5) #so that the browser doesn't open up too early
     webbrowser.open('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
-    threading.Thread(target=open_browser).start() #The Thread opens the browser, needs to be threaded so that doesnt block the flask server
+    threading.Thread(target=openBrowser).start() #The Thread opens the browser, needs to be threaded so that doesnt block the flask server
     app.run(debug=True, port=5000) #Neccessary to run the flask server, force opens on port 5000 so that the web opener always goes to right port

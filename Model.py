@@ -8,10 +8,13 @@ class Model:
         pass
         #print("currentWord is", self.currentWord) (Test)
 
-    def checkTranslation(mp3Path, correctAnswer):
+    def checkTranslation(self, mp3Path, correctAnswer):
         userAnswer = SpeechToText.audioToString(mp3Path)
-        userScore = (userAnswer.strip().lower() == correctAnswer.strip().lower())
-        return userScore
+        if correctAnswer.strip().lower() in userAnswer.strip().lower():
+            return 100
+        else:
+            return 0
+       
 
     def getRandomWord(self):
         randomWord = random.choice(list(dataGenerator.precompiledDict.keys()))
@@ -26,3 +29,6 @@ class Model:
 #      testWord.getTranslatedWord(),
 #      testWord.getEnglishAudio(),
 #      testWord.getTranslatedAudio())
+
+# m = Model()
+# print(m.checkTranslation("TranslatedAudio/Bonjour.mp3", "Bonjour"))
