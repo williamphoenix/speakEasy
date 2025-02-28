@@ -14,11 +14,11 @@ CORS(app)
 @app.route('/')
 def index():
     # Serve the HTML file
-    webbrowser.open("127.0.0.1:5000")
-    return send_from_directory('static', 'viewFrame.html')
+    webbrowser.open("127.0.0.1:5000") #opens the browser with our window
+    return send_from_directory('static', 'viewFrame.html')#points the flask server to the html file
 
 
-@app.route('/stop-lesson', methods=['POST'])
+@app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
 def stop_lesson():
     # logic to stop the lesson
     print("Got stop request")
@@ -86,9 +86,9 @@ controller = Controller()
 def open_browser():
     # Wait for a moment to make sure the server is up
     import time
-    time.sleep(1.5)
+    time.sleep(1.5) #so that the browser doesn't open up too early
     webbrowser.open('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
-    threading.Thread(target=open_browser).start() #The Thread opens the browser
-    app.run(debug=True, port=5000) #Neccessary to run the flask server
+    threading.Thread(target=open_browser).start() #The Thread opens the browser, needs to be threaded so that doesnt block the flask server
+    app.run(debug=True, port=5000) #Neccessary to run the flask server, force opens on port 5000 so that the web opener always goes to right port
