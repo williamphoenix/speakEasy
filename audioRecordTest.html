@@ -58,6 +58,18 @@
                     console.log("recorder stopped");
                     const blob = new Blob(chunks, {type: 'audio/webm' });
                     const file = new File([blob], "userAudio.webm", {type: 'audio/webm'});
+                    
+                    const url = URL. createObjectURL(file);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = file.name;
+
+                    document.body.appendChild(a);
+                    a.click();
+
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                 }
             })
 
