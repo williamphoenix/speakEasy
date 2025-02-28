@@ -27,7 +27,9 @@
 <body>
     <h1>Speakeasy</h1>
 <div id="controls">
-    <button onclick="startFunction()">Start</button>
+    <!--<button onclick="startFunction()">Start</button>-->
+    <button class="start">Start</button>
+
     
     <br><br>
     
@@ -42,14 +44,18 @@
 <div id="translationSection">
     <h2>Translate the following word:</h2>
     <p id="wordToTranslate">Bonjour</p>
-    <button onclick="startRecording()">Start Recording</button>
-    <button onclick="stopRecording()">Stop Recording</button>
+    <!--<button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>-->
+    <button class="startRecord">Start Record</button>
+    <button class="stopRecord">Stop Record</button>
     <br><br>
-    <button onclick="goBack()">Back</button>
+    <!--<button onclick="goBack()">Back</button>-->
+    <button class="back">Back</button>
 </div>
 
 
     <script>
+        /*
         function startFunction() {
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
@@ -79,7 +85,18 @@
             document.getElementById("controls").style.display = "block";
             document.getElementById("translationSection").style.display = "none";
 
-        }
+        }*/
+
+        const start = document.querySelector(".start");
+        const startRecord = document.querySelector(".startRecord");
+        const stopRecord = document.querySelector(".stopRecord");
+        const back = document.querySelector(".back")
+
+        start.addEventListener("click", () => {
+            document.getElementById("controls").style.display = "none";
+            document.getElementById("translationSection").style.display = "block";
+            document.getElementById("wordToTranslate").innerText = "Bonjour";
+        });
     </script>
 </body>
 </html>
