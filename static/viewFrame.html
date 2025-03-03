@@ -94,7 +94,22 @@
         }
 
         function handleStop(chunks) {
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            const file = new File([blob], "userAudio.webm", { type: 'audio/webm' });
 
+            const formData = new FormData();
+            formData.append('audio_file', file);
+
+            fetch('/upload-audio', {
+                method: 'POST',
+                body: formData
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server response:", data.message);
+            })
+            .catch(error => console.error('Error uploading file:', error));
         }
 
         /*function goBack(){
