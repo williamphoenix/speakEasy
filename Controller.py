@@ -17,20 +17,11 @@ def index():
     webbrowser.open("127.0.0.1:5000") #opens the browser with our window
     return send_from_directory('static', 'viewFrame.html')#points the flask server to the html file
 
-
-@app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
-def stop_lesson():
-    # logic to stop the lesson
-    print("Got stop request")
-    return jsonify({"status": "stopped", "message": "Lesson stopped"})
-
-
 class Controller:
     def __init__(self):
         self.lessonRunning = False
         self.lessonLanguage = "NA"
         self.model = Model()
-        self.startButtonPressed("French")
 
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
@@ -61,8 +52,7 @@ class Controller:
             
         return 0
 
-    def startButtonPressed(self, language):
-        self.lessonLanguage = language
+    def startButtonPressed(self):
         self.lessonRunning = True
         self.runLesson()
 
@@ -72,6 +62,20 @@ class Controller:
         return {"status": "stopped", "message": "Lesson stopped"}
 
 controller = Controller() 
+
+@app.route('/start-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
+def startLesson():
+    # logic to stop the lesson
+    print("Got start request")
+    controller.startButtonPressed()
+    return jsonify({"status": "started", "message": "Lesson started"})
+
+@app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
+def stopLesson():
+    # logic to stop the lesson
+    print("Got stop request")
+    controller.stopButtonPressed()
+    return jsonify({"status": "stopped", "message": "Lesson stopped"})
 
 def openBrowser():
     # Wait for a moment to make sure the server is up
