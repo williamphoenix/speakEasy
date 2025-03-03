@@ -70,6 +70,16 @@
             alert("Recording stopped.");
         }*/
 
+        function startLesson() {
+            fetch('/start-lesson', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+
         function stopLesson() {
             fetch('/stop-lesson', {
                 method: 'POST',
@@ -110,6 +120,7 @@
         const back = document.querySelector(".back")
 
         start.addEventListener("click", () => {
+            startLesson()
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
             document.getElementById("wordToTranslate").innerText = "Bonjour";
