@@ -43,7 +43,7 @@
 
 <div id="translationSection">
     <h2>Translate the following word:</h2>
-    <p id="wordToTranslate">Bonjour</p>
+    <p id="wordToTranslate">test</p>
     <!--<button onclick="startRecording()">Start Recording</button>
     <button onclick="stopRecording()">Stop Recording</button>-->
     <button class="startRecord">Start Record</button>
@@ -55,20 +55,6 @@
 
 
     <script>
-        /*
-        function startFunction() {
-            document.getElementById("controls").style.display = "none";
-            document.getElementById("translationSection").style.display = "block";
-            document.getElementById("wordToTranslate").innerText = "Bonjour";
-        }
-
-        function startRecording() {
-            alert("recording started...");
-        }
-
-        function stopRecording(){
-            alert("Recording stopped.");
-        }*/
 
         function startLesson() {
             fetch('/start-lesson', {
@@ -77,6 +63,15 @@
             })
             .then(response => response.json())
             .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function setWord(){
+            fetch('/get_string')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('wordToTranslate').innerText = data.data;
+            })
             .catch(error => console.error('Error:', error));
         }
 
@@ -102,6 +97,7 @@
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
         }
+        
 
         function handleStop(chunks) {
             const blob = new Blob(chunks, { type: 'audio/webm' });
@@ -135,10 +131,10 @@
         const back = document.querySelector(".back")
 
         start.addEventListener("click", () => {
+            setWord()
             startLesson()
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
-            document.getElementById("wordToTranslate").innerText = "Bonjour";
         });
 
         

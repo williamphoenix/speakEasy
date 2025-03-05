@@ -17,21 +17,26 @@ def index():
     webbrowser.open("127.0.0.1:5000") #opens the browser with our window
     return send_from_directory('static', 'viewFrame.html')#points the flask server to the html file
 
+
 class Controller:
     def __init__(self):
         self.lessonRunning = False
         self.lessonLanguage = "NA"
         self.model = Model()
+        self.currentWord = self.model.getRandomWord()
+
+    def getCurrentWord(self):
+        return self.currentWord
 
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
-            currentWord = self.model.getRandomWord() #change via model once implemented
-            print("currentWord is:", currentWord.getEnglishWord())
-
-
+            print("currentWord is:", self.currentWord.getEnglishWord())
 
             #sends randomly generated word to the view
+            data = request.get_json()
+            my_variable = data['text']
+
 
             #recieves user responce from view
 
@@ -59,6 +64,7 @@ class Controller:
     def stopButtonPressed(self):
         self.lessonRunning = False
         print("Lesson stopped")
+        self.currentWord = self.model.getRandomWord()
         return {"status": "stopped", "message": "Lesson stopped"}
 
 controller = Controller() 
@@ -69,6 +75,15 @@ def startLesson():
     print("Got start request")
     controller.startButtonPressed()
     return jsonify({"status": "started", "message": "Lesson started"})
+
+@app.route('/get_string')
+def get_string():
+    global controller
+    print("We're in get_string")
+    my_string = controller.getCurrentWord().getEnglishWord()
+    print(my_string)
+    return jsonify({'data': my_string})
+
 
 @app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
 def stopLesson():
