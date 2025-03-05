@@ -34,9 +34,7 @@ class Controller:
             print("currentWord is:", self.currentWord.getEnglishWord())
 
             #sends randomly generated word to the view
-            data = request.get_json()
-            my_variable = data['text']
-
+        
 
             #recieves user responce from view
 
@@ -46,7 +44,7 @@ class Controller:
 
             #check for stop command
 
-            if("tempString" == currentWord.getTranslatedWord()):#check if correct
+            if("tempString".lower() in self.currentWord.getTranslatedWord().lower()):#check if correct
                 print("got here")
                 #send correct signal to view
                 return 0
@@ -71,6 +69,8 @@ controller = Controller()
 
 @app.route('/start-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten
 def startLesson():
+    dropdownData = request.get_json()
+    controller.lessonLanguage = dropdownData.get("language", "Unknown")
     # logic to stop the lesson
     print("Got start request")
     controller.startButtonPressed()
@@ -95,7 +95,7 @@ def stopLesson():
 def openBrowser():
     # Wait for a moment to make sure the server is up
     import time
-    time.sleep(1.5) #so that the browser doesn't open up too early
+    time.sleep(2) #so that the browser doesn't open up too early
     webbrowser.open('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':

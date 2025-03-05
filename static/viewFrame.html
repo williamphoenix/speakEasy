@@ -35,9 +35,9 @@
     
     <label for="options">Choose a language:</label>
     <select id="options">
-        <option value="option1">French</option>
-        <option value="option2">Arabic</option>
-        <option value="option3">Piglatin</option>
+        <option value="French">French</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Piglatin">Piglatin</option>
     </select>
 </div>
 
@@ -57,9 +57,12 @@
     <script>
 
         function startLesson() {
+            const selectedLanguage = document.getElementById("options").value;
+
             fetch('/start-lesson', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ language: selectedLanguage })
             })
             .then(response => response.json())
             .then(data => alert(data.message))
