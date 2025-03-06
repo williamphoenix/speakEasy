@@ -95,10 +95,11 @@
             recordButton.style.color = "black";
         }
 
-        function stopRecording(mediaRecorder) {
+        function stopRecording(mediaRecorder, recordButton) {
             mediaRecorder.stop();
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
+            recordButton.style.background = "lightGrey";
         }
         
 
@@ -163,7 +164,7 @@
                 });
 
                 stopRecord.addEventListener("click", () => {
-                    stopRecording(mediaRecorder)
+                    stopRecording(mediaRecorder, startRecord)
                 });
             });
 
