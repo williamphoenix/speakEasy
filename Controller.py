@@ -16,8 +16,6 @@ recordings_path = os.path.join(os.path.dirname(__file__), 'recordings')
 
 @app.route('/')
 def index():
-    # Serve the HTML file
-    webbrowser.open("127.0.0.1:5000") #opens the browser with our window
     return send_from_directory('static', 'viewFrame.html')#points the flask server to the html file
 
 
@@ -112,7 +110,7 @@ def upload_audio():
 def openBrowser():
     # Wait for a moment to make sure the server is up
     import time
-    time.sleep(2) #so that the browser doesn't open up too early
+    time.sleep(1) #so that the browser doesn't open up too early
     webbrowser.open('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
