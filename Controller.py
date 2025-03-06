@@ -110,7 +110,7 @@ def upload_audio():
 def openBrowser():
     # Wait for a moment to make sure the server is up
     import time
-    time.sleep(1) #so that the browser doesn't open up too early
+    time.sleep(1.5) #so that the browser doesn't open up too early
     webbrowser.open('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
