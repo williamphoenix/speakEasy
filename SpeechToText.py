@@ -41,4 +41,4 @@ class SpeechToText:
 
         return None
 
-print(SpeechToText.audioToString("TranslatedAudio/Bonjour.mp3"))
+#print(SpeechToText.audioToString("TranslatedAudio/Bonjour.mp3"))

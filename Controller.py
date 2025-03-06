@@ -1,6 +1,6 @@
 from Word import Word
 from Model import Model
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Response
 
 from flask import send_from_directory
 
@@ -8,6 +8,7 @@ from flask_cors import CORS
 import webbrowser
 import threading
 import os
+import time
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -23,6 +24,7 @@ def index():
 class Controller:
     def __init__(self):
         self.lessonRunning = False
+        self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
         self.currentWord = self.model.getRandomWord()
@@ -36,6 +38,16 @@ class Controller:
             self.currentWord = self.model.getRandomWord()
             print("currentWord is:", self.currentWord.getEnglishWord())
 
+            while self.lessonRunning:
+                if not self.awaitingResponse:
+                    self.currentWord = self.model.getRandomWord()
+                    englishWord = self.currentWord.getEnglishWord()
+                    print("New word:", englishWord)
+                    yield f"data: {englishWord}\n\n"
+                    self.awaitingResponse = True
+                
+                time.sleep(1)
+
             #sends randomly generated word to the view
         
 
@@ -47,16 +59,24 @@ class Controller:
 
             #check for stop command
 
-            if("tempString".lower() in self.currentWord.getTranslatedWord().lower()):#check if correct
-                print("got here")
-                #send correct signal to view
-                return 0
-            else:
-                #send incorrect signal to view
-                #send correct translation to view
-                return 0
-            
-        return 0
+    def processUserAudio(self, audio_path):
+        score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
+        print("the socre is", score)
+
+        if score > 0:
+            feedback = "Correct!"
+        else:
+            feedback = f"Incorrect! The correct word was '{self.currentWord.getEnglishWord()}'."
+
+        print("Feedback:", feedback)
+
+        yield f"data: {feedback}\n\n"
+
+        time.sleep(3)
+
+        self.awaitingResponse = False
+
+
 
     def startButtonPressed(self):
         self.lessonRunning = True
@@ -106,9 +126,22 @@ def upload_audio():
     
     save_path = os.path.join(recordings_path, audio_file.filename)
     audio_file.save(save_path)
+    print("saved file & calling processUserAudio")
 
-    return jsonify({'message': 'File saved successfully', 'path': save_path})
+    def generate_feedback():
+        for feedback in controller.processUserAudio(save_path):
+            yield feedback
 
+    return Response(controller.processUserAudio(save_path), mimetype="text/event-stream")
+
+@app.route('/wordStream')
+def wordStream():
+    def generate():
+        while controller.lessonRunning:
+            for event in controller.runLesson():
+                yield event
+    return Response(generate(), mimetype="text/event-stream")
+    
 def openBrowser():
     # Wait for a moment to make sure the server is up
     import time

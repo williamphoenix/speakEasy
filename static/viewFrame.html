@@ -42,7 +42,7 @@
 </div>
 
 <div id="translationSection">
-    <h2>Translate the following word:</h2>
+    <p id="instructionText">Say the word in the selected language</p>
     <p id="wordToTranslate">test</p>
     <!--<button onclick="startRecording()">Start Recording</button>
     <button onclick="stopRecording()">Stop Recording</button>-->
@@ -65,7 +65,26 @@
                 body: JSON.stringify({ language: selectedLanguage })
             })
             .then(response => response.json())
+            .then(data => {
+                document.getElementById("controls").style.display = "none";
+                document.getElementById("translationSection").style.display = "block";
+                startEventSource();  // Start listening for updates
+            })
             .catch(error => console.error('Error:', error));
+        }
+
+        function startEventSource() {
+            const eventSource = new EventSource('/wordStream');
+
+            eventSource.onmessage = function(event) {
+                console.log("Received word:", event.data);
+                document.getElementById('wordToTranslate').innerText = event.data;
+            };
+
+            eventSource.onerror = function() {
+                console.error("EventSource failed.");
+                eventSource.close();
+            };
         }
 
         function setWord(){
@@ -112,10 +131,19 @@
                 method: 'POST',
                 body: formData
             })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to upload audio");
+                }
+                return response.text();
+            })
+            .then(feedback => {
+                console.log("Feedback received:", feedback);
+                document.getElementById("instructionText").innerText = feedback;
 
-            .then(response => response.json())
-            .then(data => {
-                console.log("Server response:", data.message);
+                setTimeout(() => {
+                    console.log("Ready for the next word");
+                }, 3000);
             })
             .catch(error => console.error('Error uploading file:', error));
         }
@@ -133,7 +161,7 @@
         const back = document.querySelector(".back")
 
         start.addEventListener("click", () => {
-            setWord()
+            //setWord()
             startLesson()
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
@@ -155,7 +183,7 @@
             navigator.mediaDevices.getUserMedia({audio: true})
 
             .then((stream) => {
-                const mediaRecorder = new MediaRecorder(stream);
+                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
                 let audioChunks = []
 
                 mediaRecorder.addEventListener("dataavailable", (event) => {

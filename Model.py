@@ -8,8 +8,10 @@ class Model:
         pass
         #print("currentWord is", self.currentWord) (Test)
 
-    def checkTranslation(self, mp3Path, correctAnswer):
-        userAnswer = SpeechToText.audioToString(mp3Path)
+    def checkTranslation(self, audioFilePath, correctAnswer):
+        print("THE AUDIO FILE PATH IS", audioFilePath)
+        userAnswer = SpeechToText.audioToString(audioFilePath)
+        print("THE TRANSCRIBED STRING IS:", userAnswer)
         if correctAnswer.strip().lower() in userAnswer.strip().lower():
             return 100
         else:
