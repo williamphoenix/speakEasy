@@ -11,6 +11,7 @@ import ffmpeg
 import os
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 CORS(app)
 
 recordings_path = os.path.join(os.path.dirname(__file__), 'recordings')
