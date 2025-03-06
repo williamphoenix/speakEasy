@@ -1,15 +1,18 @@
 from Word import Word
 from Model import Model
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 
 from flask import send_from_directory
 
 from flask_cors import CORS 
 import webbrowser
 import threading   
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+recordings_path = os.path.join(os.path.dirname(__file__), 'recordings')
 
 @app.route('/')
 def index():
@@ -91,6 +94,20 @@ def stopLesson():
     print("Got stop request")
     controller.stopButtonPressed()
     return jsonify({"status": "stopped", "message": "Lesson stopped"})
+
+@app.route('/upload-audio', methods=['POST'])
+def upload_audio():
+    if 'audio_file' not in request.files:
+        return abort(400, 'No audio file part')
+    
+    audio_file = request.files['audio_file']
+    if audio_file.filename == '':
+        return abort(400, 'No selected file')
+    
+    save_path = os.path.join(recordings_path, audio_file.filename)
+    audio_file.save(save_path)
+
+    return jsonify({'message': 'File saved successfully', 'path': save_path})
 
 def openBrowser():
     # Wait for a moment to make sure the server is up
