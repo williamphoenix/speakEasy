@@ -156,8 +156,19 @@
 
             .then((stream) => {
                 const mediaRecorder = new MediaRecorder(stream);
+                let audioChunks = []
+
+                mediaRecorder.addEventListener("dataavailable", (event) => {
+                    audioChunks.push(event.data);
+                })
+
+                mediaRecorder.addEventListener("stop", () => {
+                    handleStop(audioChunks);
+                    audioChunks;
+                })
     
                 startRecord.addEventListener("click", () => {
+                    audioChunks = [];
                     startRecording(mediaRecorder, startRecord)
                 });
 
