@@ -68,19 +68,6 @@ class Controller:
         print("Lesson stopped")
         self.currentWord = self.model.getRandomWord()
         return {"status": "stopped", "message": "Lesson stopped"}
-    
-    @staticmethod
-    def convertAudio(input_file, output_file):
-        try:
-            (
-                ffmpeg
-                .input(input_file)
-                .output(output_file, format = "mp3", audio_bitrate='192k')
-                .run(overwrite_output = True)
-            )
-            print(f"Conversion successful: {output_file}")
-        except ffmpeg.Error as e:
-            print("Error:", e.stderr.decode())
         
 
 controller = Controller() 
@@ -120,8 +107,6 @@ def upload_audio():
     
     save_path = os.path.join(recordings_path, audio_file.filename)
     audio_file.save(save_path)
-    controller.convertAudio("recordings/userAudio.webm", "recordings/userAudio.mp3")
-    save_path = os.path.join(recordings_path, audio_file.filename)
 
     return jsonify({'message': 'File saved successfully', 'path': save_path})
 
