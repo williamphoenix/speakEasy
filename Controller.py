@@ -7,7 +7,6 @@ from flask import send_from_directory
 from flask_cors import CORS 
 import webbrowser
 import threading
-import ffmpeg
 import os
 
 app = Flask(__name__)
