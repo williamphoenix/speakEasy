@@ -31,6 +31,7 @@ class Controller:
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
+            self.currentWord = self.model.getRandomWord()
             print("currentWord is:", self.currentWord.getEnglishWord())
 
             #sends randomly generated word to the view
@@ -78,7 +79,6 @@ def startLesson():
 
 @app.route('/get_string')
 def get_string():
-    global controller
     print("We're in get_string")
     my_string = controller.getCurrentWord().getEnglishWord()
     print(my_string)
