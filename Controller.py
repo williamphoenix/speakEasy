@@ -7,6 +7,7 @@ from flask import send_from_directory
 from flask_cors import CORS 
 import webbrowser
 import threading
+import ffmpeg
 import os
 import time
 
@@ -35,9 +36,6 @@ class Controller:
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
-            self.currentWord = self.model.getRandomWord()
-            print("currentWord is:", self.currentWord.getEnglishWord())
-
             while self.lessonRunning:
                 if not self.awaitingResponse:
                     self.currentWord = self.model.getRandomWord()
@@ -46,7 +44,7 @@ class Controller:
                     yield f"data: {englishWord}\n\n"
                     self.awaitingResponse = True
                 
-                time.sleep(1)
+                time.sleep(0.1)
 
             #sends randomly generated word to the view
         
@@ -61,7 +59,7 @@ class Controller:
 
     def processUserAudio(self, audio_path):
         score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
-        print("the socre is", score)
+        print("The score is", score)
 
         if score > 0:
             feedback = "Correct!"
@@ -70,9 +68,7 @@ class Controller:
 
         print("Feedback:", feedback)
 
-        yield f"data: {feedback}\n\n"
-
-        time.sleep(3)
+        yield f"{feedback}\n"
 
         self.awaitingResponse = False
 
@@ -87,6 +83,19 @@ class Controller:
         print("Lesson stopped")
         self.currentWord = self.model.getRandomWord()
         return {"status": "stopped", "message": "Lesson stopped"}
+    
+    @staticmethod
+    def convertAudio(input_file, output_file):
+        try:
+            (
+                ffmpeg
+                .input(input_file)
+                .output(output_file, format = "mp3", audio_bitrate='192k')
+                .run(overwrite_output = True)
+            )
+            print(f"Conversion successful: {output_file}")
+        except ffmpeg.Error as e:
+            print("Error:", e.stderr.decode())
         
 
 controller = Controller() 
@@ -124,15 +133,24 @@ def upload_audio():
     if audio_file.filename == '':
         return abort(400, 'No selected file')
     
-    save_path = os.path.join(recordings_path, audio_file.filename)
-    audio_file.save(save_path)
-    print("saved file & calling processUserAudio")
+    original_path = os.path.join(recordings_path, audio_file.filename)
+    audio_file.save(original_path)
+
+    mp3_filename = os.path.splitext(audio_file.filename)[0] + ".mp3"
+    mp3_path = os.path.join(recordings_path, mp3_filename)
+
+    controller.convertAudio(original_path, mp3_path)
+
+    print(f"Saved file: {original_path}, Converted to MP3: {mp3_path}")
+
+    if os.path.exists(original_path):
+        os.remove(original_path)
 
     def generate_feedback():
-        for feedback in controller.processUserAudio(save_path):
+        for feedback in controller.processUserAudio(mp3_path):
             yield feedback
 
-    return Response(controller.processUserAudio(save_path), mimetype="text/event-stream")
+    return Response(controller.processUserAudio(mp3_path), mimetype="text/event-stream")
 
 @app.route('/wordStream')
 def wordStream():
@@ -150,4 +168,4 @@ def openBrowser():
 
 if __name__ == '__main__':
     threading.Thread(target=openBrowser).start() #The Thread opens the browser, needs to be threaded so that doesnt block the flask server
-    app.run(debug=True, port=5000) #Neccessary to run the flask server, force opens on port 5000 so that the web opener always goes to right port
+    app.run(debug=True, port=5000, use_reloader=False) #Neccessary to run the flask server, force opens on port 5000 so that the web opener always goes to right port

@@ -42,6 +42,7 @@
 </div>
 
 <div id="translationSection">
+    <p id="feedbackText"></p>
     <p id="instructionText">Say the word in the selected language</p>
     <p id="wordToTranslate">test</p>
     <!--<button onclick="startRecording()">Start Recording</button>
@@ -58,6 +59,7 @@
 
         function startLesson() {
             const selectedLanguage = document.getElementById("options").value;
+            const wordToTranslate = document.getElementById("wordToTranslate");
 
             fetch('/start-lesson', {
                 method: 'POST',
@@ -68,7 +70,9 @@
             .then(data => {
                 document.getElementById("controls").style.display = "none";
                 document.getElementById("translationSection").style.display = "block";
-                startEventSource();  // Start listening for updates
+                instructionText.innerText = "Say the word in the selected language";
+
+                startEventSource();  // Start listening for updates 
             })
             .catch(error => console.error('Error:', error));
         }
@@ -78,7 +82,14 @@
 
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
-                document.getElementById('wordToTranslate').innerText = event.data;
+
+                if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) { //this is hardcoded logic and should be changed later
+                    feedbackText.innerText = event.data;
+                } else {
+                    wordToTranslate.innerText = event.data;
+                    wordToTranslate.style.visibility = "visible";
+                }
+                
             };
 
             eventSource.onerror = function() {
@@ -113,10 +124,12 @@
         }
 
         function stopRecording(mediaRecorder, recordButton) {
+            wordToTranslate.style.visibility = "hidden";
             mediaRecorder.stop();
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
             recordButton.style.background = "lightGrey";
+            document.getElementById("feedbackText").innerText = "Processing...";
         }
         
 
@@ -139,11 +152,8 @@
             })
             .then(feedback => {
                 console.log("Feedback received:", feedback);
-                document.getElementById("instructionText").innerText = feedback;
+                document.getElementById("feedbackText").innerText = feedback;
 
-                setTimeout(() => {
-                    console.log("Ready for the next word");
-                }, 3000);
             })
             .catch(error => console.error('Error uploading file:', error));
         }
@@ -161,10 +171,11 @@
         const back = document.querySelector(".back")
 
         start.addEventListener("click", () => {
-            //setWord()
+            wordToTranslate.style.visibility = "visible";
             startLesson()
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
+            instructionText.innerText = "Say the word in the selected language";
         });
 
         
@@ -183,7 +194,7 @@
             navigator.mediaDevices.getUserMedia({audio: true})
 
             .then((stream) => {
-                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+                const mediaRecorder = new MediaRecorder(stream);
                 let audioChunks = []
 
                 mediaRecorder.addEventListener("dataavailable", (event) => {
