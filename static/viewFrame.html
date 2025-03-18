@@ -26,36 +26,30 @@
 </head>
 <body>
     <h1>Speakeasy</h1>
-<div id="controls">
-    <!--<button onclick="startFunction()">Start</button>-->
-    <button class="start">Start</button>
+    <div id="controls">
+        <button class="start">Start</button>
+        <br><br>
+        <label for="options">Choose a language:</label>
+        <select id="options">
+            <option value="French">French</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Piglatin">Piglatin</option>
+        </select>
+    </div>
 
-    
-    <br><br>
-    
-    <label for="options">Choose a language:</label>
-    <select id="options">
-        <option value="French">French</option>
-        <option value="Arabic">Arabic</option>
-        <option value="Piglatin">Piglatin</option>
-    </select>
-</div>
-
-<div id="translationSection">
-    <p id="feedbackText"></p>
-    <p id="instructionText">Say the word in the selected language</p>
-    <p id="wordToTranslate">test</p>
-    <!--<button onclick="startRecording()">Start Recording</button>
-    <button onclick="stopRecording()">Stop Recording</button>-->
-    <button class="startRecord">Start Record</button>
-    <button class="stopRecord">Stop Record</button>
-    <br><br>
-    <!--<button onclick="goBack()">Back</button>-->
-    <button class="back">Back</button>
-</div>
-
+    <div id="translationSection">
+        <p id="feedbackText"></p>
+        <p id="instructionText">Say the word in the selected language</p>
+        <p id="wordToTranslate">test</p>
+        <button class="startRecord">Start Record</button>
+        <button class="stopRecord">Stop Record</button>
+        <br><br>
+        <button class="back">Back</button>
+    </div>
 
     <script>
+        let analyser;  // Global analyser
+        let audioLevelsData;  // Global audioLevelsData
 
         function startLesson() {
             const selectedLanguage = document.getElementById("options").value;
@@ -83,7 +77,7 @@
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
 
-                if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) { //this is hardcoded logic and should be changed later
+                if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) {
                     feedbackText.innerText = event.data;
                 } else {
                     wordToTranslate.innerText = event.data;
@@ -116,11 +110,23 @@
             .catch(error => console.error('Error:', error));
         }
 
+        function updateAudioLevels() {
+            console.log("Updating Audio Levels");
+            if (analyser) {
+                analyser.getFloatFrequencyData(audioLevelsData);  // Get audio levels
+                console.log("Audio Levels:", audioLevelsData);
+            } else {
+                console.error("Analyser is not initialized");
+            }
+        }
+
         function startRecording(mediaRecorder, recordButton) {
             mediaRecorder.start();
             console.log("recorder started");
             recordButton.style.background = "red";
             recordButton.style.color = "black";
+
+            setInterval(updateAudioLevels, 1000);
         }
 
         function stopRecording(mediaRecorder, recordButton) {
@@ -131,7 +137,6 @@
             recordButton.style.background = "lightGrey";
             document.getElementById("feedbackText").innerText = "Processing...";
         }
-        
 
         function handleStop(chunks) {
             const blob = new Blob(chunks, { type: 'audio/webm' });
@@ -158,29 +163,18 @@
             .catch(error => console.error('Error uploading file:', error));
         }
 
-        /*function goBack(){
-            stopLesson();
-            document.getElementById("controls").style.display = "block";
-            document.getElementById("translationSection").style.display = "none";
-
-        }*/
-
         const start = document.querySelector(".start");
         const startRecord = document.querySelector(".startRecord");
         const stopRecord = document.querySelector(".stopRecord");
-        const back = document.querySelector(".back")
+        const back = document.querySelector(".back");
 
         start.addEventListener("click", () => {
             wordToTranslate.style.visibility = "visible";
-            startLesson()
+            startLesson();
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
             instructionText.innerText = "Say the word in the selected language";
         });
-
-        
-
-        
 
         back.addEventListener("click", () => {
             stopLesson();
@@ -189,38 +183,43 @@
         });
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            //Logic for if the mic access is granted goes here
             console.log("getUserMedia supported.");
             navigator.mediaDevices.getUserMedia({audio: true})
-
             .then((stream) => {
                 const mediaRecorder = new MediaRecorder(stream);
-                let audioChunks = []
+
+                const audioContext = new AudioContext();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();  // Assign to global analyser
+                source.connect(analyser);
+
+                analyser.fftSize = 512;  // Adjust for resolution
+                analyser.smoothingTimeConstant = 0.8;
+
+                audioLevelsData = new Float32Array(analyser.fftSize);  // Assign to global audioLevelsData
+
+                let audioChunks = [];
 
                 mediaRecorder.addEventListener("dataavailable", (event) => {
                     audioChunks.push(event.data);
-                })
+                });
 
                 mediaRecorder.addEventListener("stop", () => {
                     handleStop(audioChunks);
-                    audioChunks;
-                })
-    
+                });
+
                 startRecord.addEventListener("click", () => {
                     audioChunks = [];
-                    startRecording(mediaRecorder, startRecord)
+                    startRecording(mediaRecorder, startRecord);
                 });
 
                 stopRecord.addEventListener("click", () => {
-                    stopRecording(mediaRecorder, startRecord)
+                    stopRecording(mediaRecorder, startRecord);
                 });
             });
-
         } else {
             console.log("getUserMedia not supported on your browser!");
         }
-
     </script>
 </body>
 </html>
-
