@@ -3,29 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speakeasy</title>
+    <title>SpeakEasy</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        select {
-            padding: 10px;
-            font-size: 16px;
-        }
-        #translationSection {
-            display: none;
-        }
+       body {
+        font-family: 'Georgia', serif;
+        text-align: center;
+        margin: 50px;
+        background-color: #591607;
+        color: #f5f5f5;
+        background-image: url("static/wooden-table-with-lights-in-background-free-photo.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    h1 {
+        font-size: 60px;
+        color: #f0e6d2;
+        text-shadow: 2px 2px 5px #000;
+        font-family: 'Georgia', serif;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+    }
+
+    #controls {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 15px;
+    display: block; /* show controls by default */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    margin: auto;
+    }
+
+    #translationSection {
+    display: none; /* hide on first load */
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    margin: auto;
+    }
+
+    label, select {
+        font-size: 18px;
+    }
+
+    select {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #c19b77;
+        background-color: #3e2c24;
+        color: #f5f5f5;
+    }
+
+    button {
+        padding: 12px 24px;
+        font-size: 18px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #7a4e2d;
+        color: #f0e6d2;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+        background-color: #a1623c;
+        transform: scale(1.05);
+    }
+
+    .back {
+        background-color: #9e2a2b;
+    }
+
+    .back:hover {
+        background-color: #611111;
+    }
+
+    #feedbackText {
+        font-weight: bold;
+        margin-top: 15px;
+        color: #ffd700;
+        font-size: 20px;
+        text-shadow: 1px 1px 3px #000;
+    }
+
+    #instructionText, #wordToTranslate {
+        font-size: 24px;
+        margin-top: 15px;
+        color: #f5f5f5;
+        text-shadow: 1px 1px 3px #000;
+    }
+
     </style>
 </head>
 <body>
-    <h1>Speakeasy</h1>
+    <h1>SpeakEasy</h1>
 <div id="controls">
     <!--<button onclick="startFunction()">Start</button>-->
     <button class="start">Start</button>
