@@ -164,6 +164,8 @@
                     feedbackText.innerText = event.data;
                 } else {
                     wordToTranslate.innerText = event.data;
+                    // this is where to put the code to output audio w/ the prompt + the word
+                    // after the audio is done being output, we are ready to start listening for input, (call startRecording())
                     wordToTranslate.style.visibility = "visible";
                 }
                 
