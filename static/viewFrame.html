@@ -125,21 +125,19 @@
     </select>
 </div>
 
-<div id="translationSection">
-    <p id="feedbackText"></p>
-    <p id="instructionText">Say the word in the selected language</p>
-    <p id="wordToTranslate">test</p>
-    <!--<button onclick="startRecording()">Start Recording</button>
-    <button onclick="stopRecording()">Stop Recording</button>-->
-    <button class="startRecord">Start Record</button>
-    <button class="stopRecord">Stop Record</button>
-    <br><br>
-    <!--<button onclick="goBack()">Back</button>-->
-    <button class="back">Back</button>
-</div>
-
+    <div id="translationSection">
+        <p id="feedbackText"></p>
+        <p id="instructionText">Say the word in the selected language</p>
+        <p id="wordToTranslate">test</p>
+        <button class="startRecord">Start Record</button>
+        <br><br>
+        <p><strong>Audio Level:</strong> <span id="audioLevelDisplay">0 dB</span></p>
+        <button class="back">Back</button>
+    </div>
 
     <script>
+        let analyser;  // Global analyser
+        let audioLevelsData;  // Global audioLevelsData
 
         function startLesson() {
             const selectedLanguage = document.getElementById("options").value;
@@ -167,7 +165,7 @@
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
 
-                if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) { //this is hardcoded logic and should be changed later
+                if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) {
                     feedbackText.innerText = event.data;
                 } else {
                     wordToTranslate.innerText = event.data;
@@ -202,12 +200,87 @@
             .catch(error => console.error('Error:', error));
         }
 
+        function updateAudioLevels() {
+            if (analyser) {
+                analyser.getFloatFrequencyData(audioLevelsData);  
+                
+                
+                let sum = 0;
+                for (let i = 0; i < audioLevelsData.length; i++) {
+                    sum += audioLevelsData[i];
+                }
+                let avgDb = sum / audioLevelsData.length;
+                
+                document.getElementById("audioLevelDisplay").innerText = avgDb.toFixed(2) + " dB";
+
+                return avgDb;
+            }
+        }
+
         function startRecording(mediaRecorder, recordButton) {
             mediaRecorder.start();
             console.log("recorder started");
             recordButton.style.background = "red";
             recordButton.style.color = "black";
+
+            monitorAudioLevels();
         }
+
+        function monitorAudioLevels() {
+            let startTime = performance.now();
+            let levels = [];
+            let baseline;
+
+            function sampleBaseLine() {
+                let currentLevel = updateAudioLevels();
+                levels.push(currentLevel);
+
+                if (performance.now() - startTime < 500) { // Collect baseline for 500ms
+                    requestAnimationFrame(sampleBaseLine);
+                } else {
+                    baseline = levels.reduce((sum, val) => sum + val, 0) / levels.length;
+                    console.log("Baseline Audio Level:", baseline);
+                    listenForSpeech(baseline);
+                }
+            }
+
+            function listenForSpeech(baseline) {
+                let threshold = baseline + 10; // Set a threshold above baseline to detect speech
+                let silenceDuration = 1000; // Silence time required to confirm speech has ended (1 sec)
+                let speechStarted = false;
+                let lastSpeechTime = 0;
+
+                function detectSpeech() {
+                    let currentLevel = updateAudioLevels();
+                    let now = performance.now();
+
+                    if (currentLevel > threshold) {
+                        if (!speechStarted) {
+                            console.log("Speech detected!");
+                            speechStarted = true;
+                        }
+                        lastSpeechTime = now; // Reset silence timer
+                    } else if (speechStarted && now - lastSpeechTime > silenceDuration) {
+                        console.log("Speech ended, stopping recording.");
+                        stopRecording(mediaRecorder, startRecord);
+                        return; 
+                    }
+
+                    if (now - startTime < 5000) { // 5 seconds max listening time
+                        requestAnimationFrame(detectSpeech);
+                    } 
+                    else {
+                        console.log("Max time reached, stopping recording.");
+                        stopRecording(mediaRecorder, startRecord);
+                    }
+                }
+
+                detectSpeech();
+            }
+
+            sampleBaseLine();
+        }
+        
 
         function stopRecording(mediaRecorder, recordButton) {
             wordToTranslate.style.visibility = "hidden";
@@ -217,7 +290,6 @@
             recordButton.style.background = "lightGrey";
             document.getElementById("feedbackText").innerText = "Processing...";
         }
-        
 
         function handleStop(chunks) {
             const blob = new Blob(chunks, { type: 'audio/webm' });
@@ -244,29 +316,17 @@
             .catch(error => console.error('Error uploading file:', error));
         }
 
-        /*function goBack(){
-            stopLesson();
-            document.getElementById("controls").style.display = "block";
-            document.getElementById("translationSection").style.display = "none";
-
-        }*/
-
         const start = document.querySelector(".start");
         const startRecord = document.querySelector(".startRecord");
-        const stopRecord = document.querySelector(".stopRecord");
-        const back = document.querySelector(".back")
+        const back = document.querySelector(".back");
 
         start.addEventListener("click", () => {
             wordToTranslate.style.visibility = "visible";
-            startLesson()
+            startLesson();
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
             instructionText.innerText = "Say the word in the selected language";
         });
-
-        
-
-        
 
         back.addEventListener("click", () => {
             stopLesson();
@@ -274,39 +334,42 @@
             document.getElementById("translationSection").style.display = "none";
         });
 
+        let mediaRecorder;
+
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            //Logic for if the mic access is granted goes here
             console.log("getUserMedia supported.");
             navigator.mediaDevices.getUserMedia({audio: true})
-
             .then((stream) => {
-                const mediaRecorder = new MediaRecorder(stream);
-                let audioChunks = []
+                mediaRecorder = new MediaRecorder(stream);
+
+                const audioContext = new AudioContext();
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();  // Assign to global analyser
+                source.connect(analyser);
+
+                analyser.fftSize = 512;  // Adjust for resolution
+                analyser.smoothingTimeConstant = 0.8;
+
+                audioLevelsData = new Float32Array(analyser.fftSize);  // Assign to global audioLevelsData
+
+                let audioChunks = [];
 
                 mediaRecorder.addEventListener("dataavailable", (event) => {
                     audioChunks.push(event.data);
-                })
+                });
 
                 mediaRecorder.addEventListener("stop", () => {
                     handleStop(audioChunks);
-                    audioChunks;
-                })
-    
+                });
+
                 startRecord.addEventListener("click", () => {
                     audioChunks = [];
-                    startRecording(mediaRecorder, startRecord)
-                });
-
-                stopRecord.addEventListener("click", () => {
-                    stopRecording(mediaRecorder, startRecord)
+                    startRecording(mediaRecorder, startRecord);
                 });
             });
-
         } else {
             console.log("getUserMedia not supported on your browser!");
         }
-
     </script>
 </body>
 </html>
-
