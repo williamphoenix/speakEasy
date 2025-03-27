@@ -128,8 +128,7 @@
     <div id="translationSection">
         <p id="feedbackText"></p>
         <p id="instructionText">Say the word in the selected language</p>
-        <p id="wordToTranslate">Placeholder</p>
-        <button class="startRecord">Start Record</button>
+        <p id="wordToTranslate">test</p>
         <br><br>
         <p><strong>Audio Level:</strong> <span id="audioLevelDisplay">0 dB</span></p>
         <button class="back">Back</button>
@@ -166,23 +165,38 @@
 
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
+                
 
                 if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) {
                     feedbackText.innerText = event.data;
                 } else {
                     wordToTranslate.innerText = event.data;
+
                     // this is where to put the code to output audio w/ the prompt + the word
                     // after the audio is done being output, we are ready to start listening for input, (call startRecording())
                     wordToTranslate.style.visibility = "visible";
-                }
-                
-            };
+                    fetch('/uploadAudio')
+                        .then(response => response.blob())
+                        .then(blob => {
+                            const audioUrl = URL.createObjectURL(blob);
+                            const audio = new Audio(audioUrl);
+                            audio.addEventListener('ended', () => {
+                                console.log('Audio finished playing');
+                                startRecording(mediaRecorder)
+                            });
 
-            eventSource.onerror = function() {
-                console.error("EventSource failed.");
-                eventSource.close();
+                            audio.play();
+                        })
+                        .catch(error => console.error('Error fetching audio:', error));
+                    }
+                }
+                eventSource.onerror = function() {
+                    console.error("EventSource failed.");
+                    eventSource.close();
+                };
             };
-        }
+            
+            
 
         function setWord(){
             fetch('/get_string')
@@ -219,11 +233,9 @@
             }
         }
 
-        function startRecording(mediaRecorder, recordButton) {
+        function startRecording(mediaRecorder) {
             mediaRecorder.start();
             console.log("recorder started");
-            recordButton.style.background = "red";
-            recordButton.style.color = "black";
 
             monitorAudioLevels();
         }
@@ -366,7 +378,7 @@
 
                 startRecord.addEventListener("click", () => {
                     audioChunks = [];
-                    startRecording(mediaRecorder, startRecord);
+                    startRecording(mediaRecorder);
                 });
             });
         } else {

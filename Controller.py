@@ -159,6 +159,18 @@ def wordStream():
             for event in controller.runLesson():
                 yield event
     return Response(generate(), mimetype="text/event-stream")
+
+@app.route('/uploadAudio')
+def uploadAudio():
+    def generateAudio():
+        currentWord = controller.getCurrentWord()
+        print("English audio path is:",currentWord.getEnglishAudio())
+        with open(currentWord.getEnglishAudio(), 'rb') as f:
+            data = f.read(1024)
+            while data:
+                yield data
+                data = f.read(1024)
+    return Response(generateAudio(), mimetype="audio/mpeg")
     
 def openBrowser():
     # Wait for a moment to make sure the server is up

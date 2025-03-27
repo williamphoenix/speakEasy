@@ -1,6 +1,5 @@
 class Word:
-    def __init__(self, englishWord, translatedWord,
-                 englishAudio, translatedAudio):
+    def __init__(self, englishWord, translatedWord, englishAudio, translatedAudio):
         self.englishWord = englishWord
         self.translatedWord = translatedWord
         self.englishAudio = englishAudio
