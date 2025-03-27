@@ -1,6 +1,6 @@
 import pandas as pd
 
-test = pd.read_csv("frenchTest.csv")
+test = pd.read_csv("EnglishToFrenchNouns.csv")
 testDict = dict()
 for i in range(len(test)):
     testDict.setdefault(test["EnglishWord"][i],

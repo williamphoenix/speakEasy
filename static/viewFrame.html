@@ -276,7 +276,7 @@
                         lastSpeechTime = now; // Reset silence timer
                     } else if (speechStarted && now - lastSpeechTime > silenceDuration) {
                         console.log("Speech ended, stopping recording.");
-                        stopRecording(mediaRecorder, startRecord);
+                        stopRecording(mediaRecorder);
                         return; 
                     }
 
@@ -285,7 +285,7 @@
                     } 
                     else {
                         console.log("Max time reached, stopping recording.");
-                        stopRecording(mediaRecorder, startRecord);
+                        stopRecording(mediaRecorder);
                     }
                 }
 
@@ -296,12 +296,11 @@
         }
         
 
-        function stopRecording(mediaRecorder, recordButton) {
+        function stopRecording(mediaRecorder) {
             wordToTranslate.style.visibility = "hidden";
             mediaRecorder.stop();
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
-            recordButton.style.background = "lightGrey";
             document.getElementById("feedbackText").innerText = "Processing...";
         }
 

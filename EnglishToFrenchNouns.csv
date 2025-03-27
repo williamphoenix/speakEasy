@@ -1,4 +1,4 @@
-English,French,EnglishAudio,TranslatedAudio
+EnglishWord,TranslatedWord,EnglishAudio,TranslatedAudio
 book,livre,EnglishAudio/book.mp3,
 house,maison,EnglishAudio/house.mp3,
 car,voiture,EnglishAudio/car.mp3,
