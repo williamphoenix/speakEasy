@@ -128,7 +128,7 @@
     <div id="translationSection">
         <p id="feedbackText"></p>
         <p id="instructionText">Say the word in the selected language</p>
-        <p id="wordToTranslate">test</p>
+        <p id="wordToTranslate">Placeholder</p>
         <button class="startRecord">Start Record</button>
         <br><br>
         <p><strong>Audio Level:</strong> <span id="audioLevelDisplay">0 dB</span></p>
@@ -154,6 +154,8 @@
                 document.getElementById("translationSection").style.display = "block";
                 instructionText.innerText = "Say the word in the selected language";
 
+
+                setWord();
                 startEventSource();  // Start listening for updates 
             })
             .catch(error => console.error('Error:', error));
@@ -370,6 +372,7 @@
         } else {
             console.log("getUserMedia not supported on your browser!");
         }
+
     </script>
 </body>
 </html>
