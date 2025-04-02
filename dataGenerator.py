@@ -7,29 +7,27 @@ for i in range(len(test)):
                     [test["TranslatedWord"][i],
                     test["EnglishAudio"][i],
                     test["TranslatedAudio"][i]])
+
+frenchDict = testDict
         
+arabic = pd.read_csv("arabicTest.csv")
+arabicDict = dict()
+for i in range(len(arabic)):
+    arabicDict.setdefault(arabic["EnglishWord"][i],
+                    [arabic["TranslatedWord"][i],
+                    arabic["EnglishAudio"][i],
+                    test["TranslatedAudio"][i]])
+
 class dataGenerator:
 
-    precompiledDict = testDict
+    precompiledDict = dict()
+    precompiledDict.setdefault("arabic",arabicDict)
+    precompiledDict.setdefault("french",frenchDict)
+    precompiledDict.setdefault("test",testDict)
+
 
     def __init__():
         print("classes dictionary is set to 'testDict'")
-
-    @staticmethod
-    def getEnglishWord(key):
-        return key
-    
-    @staticmethod
-    def getTranslatedWord(key):
-        return dataGenerator.precompiledDict[key][0]
-    
-    @staticmethod
-    def getEnglishAudio(key):
-        return dataGenerator.precompiledDict[key][1]
-    
-    @staticmethod
-    def getTranslatedAudio(key):
-        return dataGenerator.precompiledDict[key][2]
     
 
 #print("This is the test csv dataframe: \n", test, "\n",

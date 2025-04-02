@@ -18,11 +18,11 @@ class Model:
             return 0
        
 
-    def getRandomWord(self):
-        randomWord = random.choice(list(dataGenerator.precompiledDict.keys()))
-        return Word(randomWord, dataGenerator.precompiledDict[randomWord][0],
-                    dataGenerator.precompiledDict[randomWord][1],
-                    dataGenerator.precompiledDict[randomWord][2])
+    def getRandomWord(self, language):
+        randomWord = random.choice(list(dataGenerator.precompiledDict[language].keys()))
+        return Word(randomWord, dataGenerator.precompiledDict[language][randomWord][0],
+                    dataGenerator.precompiledDict[language][randomWord][1],
+                    dataGenerator.precompiledDict[language][randomWord][2])
     
 
 #test = Model(Word("hello","bonjour","hello/path.mp3","bonjour/path.mp3"))

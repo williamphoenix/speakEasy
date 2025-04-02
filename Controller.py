@@ -21,41 +21,28 @@ recordings_path = os.path.join(os.path.dirname(__file__), 'recordings')
 def index():
     return send_from_directory('static', 'viewFrame.html')#points the flask server to the html file
 
-
 class Controller:
     def __init__(self):
         self.lessonRunning = False
         self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
-        self.currentWord = self.model.getRandomWord()
+        self.currentWord = self.model.getRandomWord("french")
 
     def getCurrentWord(self):
         return self.currentWord
 
     def runLesson(self):
-        print(f"Lesson running in {self.lessonLanguage}")
         if(self.lessonRunning == True):
+            print(f"Lesson running in {self.lessonLanguage}")
             while self.lessonRunning:
                 if not self.awaitingResponse:
-                    self.currentWord = self.model.getRandomWord()
                     englishWord = self.currentWord.getEnglishWord()
                     print("New word:", englishWord)
                     yield f"data: {englishWord}\n\n"
                     self.awaitingResponse = True
                 
                 time.sleep(0.1)
-
-            #sends randomly generated word to the view
-        
-
-            #recieves user responce from view
-
-            #sends user responce to the model
-
-            #gets processed word as text from Model
-
-            #check for stop command
 
     def processUserAudio(self, audio_path):
         score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
@@ -76,12 +63,12 @@ class Controller:
 
     def startButtonPressed(self):
         self.lessonRunning = True
+        self.currentWord = self.model.getRandomWord(self.lessonLanguage)
         self.runLesson()
 
     def stopButtonPressed(self):
         self.lessonRunning = False
         print("Lesson stopped")
-        self.currentWord = self.model.getRandomWord()
         return {"status": "stopped", "message": "Lesson stopped"}
     
     @staticmethod
