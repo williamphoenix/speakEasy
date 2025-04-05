@@ -37,6 +37,7 @@ class Controller:
             print(f"Lesson running in {self.lessonLanguage}")
             while self.lessonRunning:
                 if not self.awaitingResponse:
+                    self.currentWord = self.model.getRandomWord(self.lessonLanguage)
                     englishWord = self.currentWord.getEnglishWord()
                     print("New word:", englishWord)
                     yield f"data: {englishWord}\n\n"
@@ -63,7 +64,6 @@ class Controller:
 
     def startButtonPressed(self):
         self.lessonRunning = True
-        self.currentWord = self.model.getRandomWord(self.lessonLanguage)
         self.runLesson()
 
     def stopButtonPressed(self):

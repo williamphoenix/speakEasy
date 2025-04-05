@@ -344,6 +344,7 @@
 
         back.addEventListener("click", () => {
             stopLesson();
+            stopRecording(mediaRecorder);
             document.getElementById("controls").style.display = "block";
             document.getElementById("translationSection").style.display = "none";
         });
