@@ -98,7 +98,5 @@ def trimAudio(pathToFiles):
 
     print("All files processed and overwritten.")
 
-if __name__ == "__main__":
-    trimAudio("EnglishAudio")
 
 
