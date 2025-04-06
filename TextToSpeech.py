@@ -1,5 +1,6 @@
 import os
 import csv
+import subprocess
 from pathlib import Path
 from openai import OpenAI
 
@@ -35,13 +36,13 @@ def generateAudio():
         for lines in csvFile:
             if count < 1000:
                 #print(lines["French"])
-                speech_file_path = Path(__file__).parent/"EnglishAudio" / f"{lines["English"]}.mp3"
+                speech_file_path = Path(__file__).parent/"EnglishAudio" / f"{lines['English']}.mp3"
                 print(speech_file_path)
 
                 response = client.audio.speech.create(
                     model="gpt-4o-mini-tts",
                     voice="sage",
-                    input=f"How do you say {lines["English"]} in French?",
+                    input=f"How do you say {lines['English']} in French?",
                     instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
                 )
                 response.stream_to_file(speech_file_path)
@@ -65,4 +66,39 @@ def writeAudioPaths():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def trimAudio(pathToFiles):
+    for filename in os.listdir(pathToFiles):
+        if filename.endswith((".mp3", ".wav", ".m4a")):
+            file_path = os.path.join(pathToFiles, filename)
+
+            temp_file_path = os.path.join(pathToFiles, f"temp_{filename}")
+
+            trim_cmd = [
+                "ffmpeg", "-i", file_path,
+                "-af", "silenceremove=stop_periods=-1:stop_duration=0.2:stop_threshold=-50dB", 
+                "-c:a", "libmp3lame",  
+                "-b:a", "128k",  
+                "-y", temp_file_path  
+            ]
+            
+            subprocess.run(trim_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"Trimmed audio saved as temporary file: {temp_file_path}")
+
+            overwrite_cmd = [
+                "mv", temp_file_path, file_path  
+            ]
+            subprocess.run(overwrite_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"Replaced original file with trimmed audio: {filename}")
+
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
+                print(f"Deleted temporary file: {temp_file_path}")
+
+    print("All files processed and overwritten.")
+
+if __name__ == "__main__":
+    trimAudio("EnglishAudio")
+
 
