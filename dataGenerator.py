@@ -5,8 +5,8 @@ testDict = dict()
 for i in range(len(test)):
     testDict.setdefault(test["EnglishWord"][i],
                     [test["TranslatedWord"][i],
-                    test["EnglishAudio"][i],
-                    test["TranslatedAudio"][i]])
+                    test["Prompt"][i],
+                    test["Response"][i]])
         
 class dataGenerator:
 

@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 from openai import OpenAI
 
-#Go through Translation CVS, save speech to text audio files to directories, write path to cvs file
+#Go through Translation CSV, save speech to text audio files to directories, write path to cvs file
 #Please don't run the functions in this file without asking 🥺
 
 
@@ -29,19 +29,19 @@ except Exception as e:
 
 
 def generateAudio():
-    with open("EnglishToFrenchNouns.csv", mode="r", ) as file:
+    with open("EnglishToSpanishNouns.csv", mode="r", ) as file:
         csvFile = csv.DictReader(file)
         count = 0
         for lines in csvFile:
             if count < 1000:
                 #print(lines["French"])
-                speech_file_path = Path(__file__).parent/"EnglishAudio" / f"{lines["English"]}.mp3"
+                speech_file_path = Path(__file__).parent/"SpanishPrompt" / f"{lines["EnglishWord"]}.mp3"
                 print(speech_file_path)
 
                 response = client.audio.speech.create(
                     model="gpt-4o-mini-tts",
                     voice="sage",
-                    input=f"How do you say {lines["English"]} in French?",
+                    input=f"How do you say {lines["EnglishWord"]} in Spanish?",
                     instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
                 )
                 response.stream_to_file(speech_file_path)
@@ -65,4 +65,3 @@ def writeAudioPaths():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-
