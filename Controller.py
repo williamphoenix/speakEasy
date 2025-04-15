@@ -28,7 +28,7 @@ class Controller:
         self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
-        #self.currentWord = self.model.getRandomWord(self.lessonLanguage)
+        self.currentWord = None
 
     def getCurrentWord(self):
         return self.currentWord
@@ -98,13 +98,6 @@ def startLesson():
     print("Got start request")
     controller.startButtonPressed()
     return jsonify({"status": "started", "message": "Lesson started"})
-
-@app.route('/get_string')
-def get_string():
-    print("We're in get_string")
-    my_string = controller.getCurrentWord().getEnglishWord()
-    print(my_string)
-    return jsonify({'data': my_string})
 
 
 @app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten

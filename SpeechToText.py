@@ -30,7 +30,7 @@ class SpeechToText:
             except IOError as e:
                  raise IOError(f"Error opening file '{audioFilePath}': {e}")
 
-            return transcription.text
+            return transcription
         
         except FileNotFoundError as fnf_error:
             print(f"File error: {fnf_error}")
@@ -43,4 +43,4 @@ class SpeechToText:
 
         return None
 
-#print(SpeechToText.audioToString("TranslatedAudio/Bonjour.mp3"))
+print(SpeechToText.audioToString("FrenchPrompt/air.mp3", "French"))
