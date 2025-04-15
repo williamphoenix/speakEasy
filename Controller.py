@@ -28,7 +28,6 @@ class Controller:
         self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
-        self.currentWord = self.model.getRandomWord()
 
     def getCurrentWord(self):
         return self.currentWord
@@ -38,7 +37,7 @@ class Controller:
         if(self.lessonRunning == True):
             while self.lessonRunning:
                 if not self.awaitingResponse:
-                    self.currentWord = self.model.getRandomWord()
+                    self.currentWord = self.model.getRandomWord(self.lessonLanguage)
                     englishWord = self.currentWord.getEnglishWord()
                     print("New word:", englishWord)
                     yield f"data: {englishWord}\n\n"
@@ -46,16 +45,6 @@ class Controller:
                 
                 time.sleep(0.1)
 
-            #sends randomly generated word to the view
-        
-
-            #recieves user responce from view
-
-            #sends user responce to the model
-
-            #gets processed word as text from Model
-
-            #check for stop command
 
     def processUserAudio(self, audio_path):
         score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
@@ -81,7 +70,7 @@ class Controller:
     def stopButtonPressed(self):
         self.lessonRunning = False
         print("Lesson stopped")
-        self.currentWord = self.model.getRandomWord()
+        self.currentWord = self.model.getRandomWord(self.lessonLanguage)
         return {"status": "stopped", "message": "Lesson stopped"}
     
     @staticmethod
