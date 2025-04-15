@@ -8,9 +8,9 @@ class Model:
     def __init__(self):
         self.DG = dataGenerator()
 
-    def checkTranslation(self, audioFilePath, correctAnswer):
+    def checkTranslation(self, audioFilePath, correctAnswer, targetLanguage):
         print("THE AUDIO FILE PATH IS", audioFilePath)
-        userAnswer = SpeechToText.audioToString(audioFilePath)
+        userAnswer = SpeechToText.audioToString(audioFilePath, targetLanguage)
         print("THE TRANSCRIBED STRING IS:", userAnswer)
         if correctAnswer.strip().lower() in userAnswer.strip().lower():
             return 100

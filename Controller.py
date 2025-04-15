@@ -28,6 +28,7 @@ class Controller:
         self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
+        #self.currentWord = self.model.getRandomWord(self.lessonLanguage)
 
     def getCurrentWord(self):
         return self.currentWord
@@ -47,13 +48,13 @@ class Controller:
 
 
     def processUserAudio(self, audio_path):
-        score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
+        score = self.model.checkTranslation(audio_path, self.currentWord.getTranslatedWord(), self.lessonLanguage)
         print("The score is", score)
 
         if score > 0:
             feedback = "Correct!"
         else:
-            feedback = f"Incorrect! The correct word was '{self.currentWord.getEnglishWord()}'."
+            feedback = f"Incorrect! The correct word was '{self.currentWord.getTranslatedWord()}'."
 
         print("Feedback:", feedback)
 
