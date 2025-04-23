@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,6 +138,28 @@
     <script>
         let analyser;  // Global analyser
         let audioLevelsData;  // Global audioLevelsData
+        let eventSource;
+        let audio;
+        let audioFetchController;
+
+        function stopAllProcesses() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                console.log("Stopped mediaRecorder");
+            }
+
+            if (eventSource) {
+                eventSource.close();
+                console.log("Closed event source");
+            }
+
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                console.log("Stopped microphone stream");
+            }
+
+        fetch('/stop-lesson', { method: 'POST' });
+    }
 
         function startLesson() {
             const selectedLanguage = document.getElementById("options").value;
@@ -161,7 +184,7 @@
         }
 
         function startEventSource() {
-            const eventSource = new EventSource('/wordStream');
+            eventSource = new EventSource('/wordStream');
 
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
@@ -175,21 +198,40 @@
                     // this is where to put the code to output audio w/ the prompt + the word
                     // after the audio is done being output, we are ready to start listening for input, (call startRecording())
                     wordToTranslate.style.visibility = "visible";
-                    fetch('/uploadAudio')
-                        .then(response => response.blob())
+
+                    if (audioFetchController) {
+                        audioFetchController.abort();
+                    }
+
+                    audioFetchController = new AbortController();
+                    const signal = audioFetchController.signal;
+
+                    fetch('/uploadAudio', { signal })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network reponse was not ok");
+                        }
+                        return response.blob();
+                        })
                         .then(blob => {
-                            const audioUrl = URL.createObjectURL(blob);
-                            const audio = new Audio(audioUrl);
+                            const audioBlobUrl = URL.createObjectURL(blob);
+                            audio = new Audio(audioBlobUrl);
                             audio.addEventListener('ended', () => {
                                 console.log('Audio finished playing');
                                 startRecording(mediaRecorder)
                             });
-
                             audio.play();
                         })
-                        .catch(error => console.error('Error fetching audio:', error));
+                        .catch(error => {
+                            if (error.name === "AbortError") {
+                                console.log("Audio fetch aborted.");
+                            } else {
+                                console.error("Fetch error:", error);
+                            }
+                        });
                     }
-                }
+                };
+
                 eventSource.onerror = function() {
                     console.error("EventSource failed.");
                     eventSource.close();
@@ -213,6 +255,9 @@
                 headers: { 'Content-Type': 'application/json' }
             })
             .then(response => response.json())
+            .then(data => {
+                console.log("Lesson stopped:", data);
+            })
             .catch(error => console.error('Error:', error));
         }
 
@@ -298,6 +343,7 @@
 
         function stopRecording(mediaRecorder) {
             wordToTranslate.style.visibility = "hidden";
+            console.log("Word is now Hidden")
             mediaRecorder.stop();
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
@@ -334,17 +380,59 @@
         const back = document.querySelector(".back");
 
         start.addEventListener("click", () => {
-            wordToTranslate.style.visibility = "visible";
+            wordToTranslate.style.visibility = "hidden";
+            wordToTranslate.innerText = '';  // Clear word display
+            
             startLesson();
+            wordToTranslate.style.visibility = "visible"; 
             document.getElementById("controls").style.display = "none";
             document.getElementById("translationSection").style.display = "block";
             instructionText.innerText = "Say the word in the selected language";
         });
 
-        back.addEventListener("click", () => {
+        back.addEventListener("click", stopAllProcesses => {
+
+            fetch('/stop-lesson', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Lesson stopped:", data.message);
+
+                // Reset UI and hide translation section
+                document.getElementById("controls").style.display = "block";
+                document.getElementById("translationSection").style.display = "none";
+                document.getElementById("feedbackText").style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error stopping lesson:", error);
+            });
+
+            if (audioFetchController) {
+                audioFetchController.abort();
+            }
+            
             stopLesson();
+
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+                console.log("EventSource closed.")
+            }
+
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+                audio = null;
+            }
+
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+            }
+
             document.getElementById("controls").style.display = "block";
             document.getElementById("translationSection").style.display = "none";
+            document.getElementById("wordToTranslate").innerText = "";
+            document.getElementById("feedbackText").innerText = "";
+            document.getElementById("audioLevelDisplay").innerText = "0 dB";
         });
 
         let mediaRecorder;

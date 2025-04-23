@@ -30,12 +30,18 @@ class Controller:
         self.model = Model()
         self.currentWord = None
 
+    def stopLesson(self):
+        """Method to stop the lesson and terminate processes."""
+        self.lessonRunning = False
+        self.awaitingResponse = False
+        print("Lesson has been stopped.")
+
     def getCurrentWord(self):
         return self.currentWord
 
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
-        if(self.lessonRunning == True):
+        if self.lessonRunning:
             while self.lessonRunning:
                 if not self.awaitingResponse:
                     self.currentWord = self.model.getRandomWord(self.lessonLanguage)
@@ -45,11 +51,20 @@ class Controller:
                     self.awaitingResponse = True
                 
                 time.sleep(0.1)
+        else:
+            print("Lesson has been stopped by runLesson()")
 
 
     def processUserAudio(self, audio_path):
+        if not self.lessonRunning:
+            return
+
         score = self.model.checkTranslation(audio_path, self.currentWord.getTranslatedWord(), self.lessonLanguage)
         print("The score is", score)
+
+        if not self.lessonRunning:
+            print("Lesson was stopped before processing finished")
+            return
 
         if score > 0:
             feedback = "Correct!"
@@ -58,11 +73,10 @@ class Controller:
 
         print("Feedback:", feedback)
 
-        yield f"{feedback}\n"
+        if self.lessonRunning:
+            yield f"{feedback}\n"
 
         self.awaitingResponse = False
-
-
 
     def startButtonPressed(self):
         self.lessonRunning = True
@@ -104,7 +118,7 @@ def startLesson():
 def stopLesson():
     # logic to stop the lesson
     print("Got stop request")
-    controller.stopButtonPressed()
+    controller.stopLesson()
     return jsonify({"status": "stopped", "message": "Lesson stopped"})
 
 @app.route('/upload-audio', methods=['POST'])
@@ -129,8 +143,14 @@ def upload_audio():
     if os.path.exists(original_path):
         os.remove(original_path)
 
+    if not controller.lessonRunning:
+        return jsonify({"status": "cancelled", "message": "Lesson has been stopped before upload completed."})
+
     def generate_feedback():
         for feedback in controller.processUserAudio(mp3_path):
+            if not controller.lessonRunning:
+                print("Upload aborted due to lesson stop.")
+                break
             yield feedback
 
     return Response(controller.processUserAudio(mp3_path), mimetype="text/event-stream")
