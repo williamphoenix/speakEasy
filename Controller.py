@@ -30,12 +30,18 @@ class Controller:
         self.model = Model()
         self.currentWord = None
 
+    def stopLesson(self):
+        """Method to stop the lesson and terminate processes."""
+        self.lessonRunning = False
+        self.awaitingResponse = False
+        print("Lesson has been stopped.")
+
     def getCurrentWord(self):
         return self.currentWord
 
     def runLesson(self):
         print(f"Lesson running in {self.lessonLanguage}")
-        if(self.lessonRunning == True):
+        if self.lessonRunning:
             while self.lessonRunning:
                 if not self.awaitingResponse:
                     self.currentWord = self.model.getRandomWord(self.lessonLanguage)
@@ -45,9 +51,14 @@ class Controller:
                     self.awaitingResponse = True
                 
                 time.sleep(0.1)
+        else:
+            print("Lesson has been stopped by runLesson()")
 
 
     def processUserAudio(self, audio_path):
+        if not self.lessonRunning:
+            return
+
         score = self.model.checkTranslation(audio_path, self.currentWord.getTranslatedWord(), self.lessonLanguage)
         print("The score is", score)
 
@@ -61,8 +72,6 @@ class Controller:
         yield f"{feedback}\n"
 
         self.awaitingResponse = False
-
-
 
     def startButtonPressed(self):
         self.lessonRunning = True
@@ -104,7 +113,7 @@ def startLesson():
 def stopLesson():
     # logic to stop the lesson
     print("Got stop request")
-    controller.stopButtonPressed()
+    controller.stopLesson()
     return jsonify({"status": "stopped", "message": "Lesson stopped"})
 
 @app.route('/upload-audio', methods=['POST'])
