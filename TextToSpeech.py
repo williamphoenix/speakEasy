@@ -32,21 +32,18 @@ except Exception as e:
 def generateAudio():
     with open("EnglishToFrenchNouns.csv", mode="r", ) as file:
         csvFile = csv.DictReader(file)
-        count = 0
         for lines in csvFile:
-            if count < 1000:
-                #print(lines["French"])
-                speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines["Response"]}.mp3"
-                print(speech_file_path)
+            speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines["EnglishWord"]}_correct.mp3"
+            print(speech_file_path)
 
-                response = client.audio.speech.create(
-                    model="gpt-4o-mini-tts",
-                    voice="sage",
-                    input=f"Correct! The word was {lines["TranslatedWord"]}.",
-                    instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
-                )
-                response.stream_to_file(speech_file_path)
-                count += 1
+            response = client.audio.speech.create(
+                model="gpt-4o-mini-tts",
+                voice="sage",
+                input=f"Correct. Le mot était \"{lines["TranslatedWord"]}\".",
+                instructions=f"You are a helpful teacher asking your student to translate a word into another language. Speak only in French.",
+            )
+            response.stream_to_file(speech_file_path)
+generateAudio()
 
 def writeAudioPaths():
     with open("EnglishToFrenchNouns.csv", mode="r", newline="", encoding="utf-8") as infile:
