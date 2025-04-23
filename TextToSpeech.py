@@ -97,3 +97,8 @@ def trimAudio(pathToFiles):
 
 
 
+if __name__ == "__main__":
+    folder_to_trim = "SpanishPrompt"  # Change this to the folder you want to process
+    print(f"Trimming audio files in folder: {folder_to_trim}")
+    trimAudio(folder_to_trim)
+
