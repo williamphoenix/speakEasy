@@ -1,34 +1,48 @@
 import pandas as pd
 
-test = pd.read_csv("EnglishToFrenchNouns.csv")
-testDict = dict()
-for i in range(len(test)):
-    testDict.setdefault(test["EnglishWord"][i],
-                    [test["TranslatedWord"][i],
-                    test["EnglishAudio"][i],
-                    test["TranslatedAudio"][i]])
         
 class dataGenerator:
-
-    precompiledDict = testDict
-
-    def __init__():
-        print("classes dictionary is set to 'testDict'")
+    
+    def __init__(self):
+        self.FrenchDict = self.compileDict("EnglishToFrenchNouns.csv")
+        self.SpanishDict = self.compileDict("EnglishToSpanishNouns.csv")
+        self.EnglishDict = self.compileDict("EnglishToEnglishNouns.csv")
 
     @staticmethod
-    def getEnglishWord(key):
+    def compileDict(path):
+        current = pd.read_csv(path)
+        currentDict = dict()
+        for i in range(len(current)):
+            currentDict.setdefault(current["EnglishWord"][i],
+                            [current["TranslatedWord"][i],
+                            current["Prompt"][i],
+                            current["Response"][i]])
+        return currentDict
+
+    def getDict(self, lang):
+        if(lang == "French"):
+            return self.FrenchDict
+        elif(lang == "Spanish"):
+            return self.SpanishDict
+        elif(lang == "English"):
+            return self.EnglishDict
+        else:
+            raise("did not find language to access")
+    
+
+    def getEnglishWord(self, key):
         return key
     
-    @staticmethod
-    def getTranslatedWord(key):
+
+    def getTranslatedWord(self, key):
         return dataGenerator.precompiledDict[key][0]
     
-    @staticmethod
-    def getEnglishAudio(key):
+
+    def getEnglishAudio(self, key):
         return dataGenerator.precompiledDict[key][1]
     
-    @staticmethod
-    def getTranslatedAudio(key):
+
+    def getTranslatedAudio(self, key):
         return dataGenerator.precompiledDict[key][2]
     
 

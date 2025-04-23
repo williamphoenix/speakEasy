@@ -28,7 +28,7 @@ class Controller:
         self.awaitingResponse = False
         self.lessonLanguage = "NA"
         self.model = Model()
-        self.currentWord = self.model.getRandomWord()
+        self.currentWord = None
 
     def getCurrentWord(self):
         return self.currentWord
@@ -38,7 +38,7 @@ class Controller:
         if(self.lessonRunning == True):
             while self.lessonRunning:
                 if not self.awaitingResponse:
-                    self.currentWord = self.model.getRandomWord()
+                    self.currentWord = self.model.getRandomWord(self.lessonLanguage)
                     englishWord = self.currentWord.getEnglishWord()
                     print("New word:", englishWord)
                     yield f"data: {englishWord}\n\n"
@@ -46,25 +46,15 @@ class Controller:
                 
                 time.sleep(0.1)
 
-            #sends randomly generated word to the view
-        
-
-            #recieves user responce from view
-
-            #sends user responce to the model
-
-            #gets processed word as text from Model
-
-            #check for stop command
 
     def processUserAudio(self, audio_path):
-        score = self.model.checkTranslation(audio_path, self.currentWord.getEnglishWord())
+        score = self.model.checkTranslation(audio_path, self.currentWord.getTranslatedWord(), self.lessonLanguage)
         print("The score is", score)
 
         if score > 0:
             feedback = "Correct!"
         else:
-            feedback = f"Incorrect! The correct word was '{self.currentWord.getEnglishWord()}'."
+            feedback = f"Incorrect! The correct word was '{self.currentWord.getTranslatedWord()}'."
 
         print("Feedback:", feedback)
 
@@ -81,7 +71,7 @@ class Controller:
     def stopButtonPressed(self):
         self.lessonRunning = False
         print("Lesson stopped")
-        self.currentWord = self.model.getRandomWord()
+        self.currentWord = self.model.getRandomWord(self.lessonLanguage)
         return {"status": "stopped", "message": "Lesson stopped"}
     
     @staticmethod
@@ -108,13 +98,6 @@ def startLesson():
     print("Got start request")
     controller.startButtonPressed()
     return jsonify({"status": "started", "message": "Lesson started"})
-
-@app.route('/get_string')
-def get_string():
-    print("We're in get_string")
-    my_string = controller.getCurrentWord().getEnglishWord()
-    print(my_string)
-    return jsonify({'data': my_string})
 
 
 @app.route('/stop-lesson', methods=['POST']) #gets the stop request from view and returns status that message was gotten

@@ -120,8 +120,8 @@
     <label for="options">Choose a language:</label>
     <select id="options">
         <option value="French">French</option>
-        <option value="Arabic">Arabic</option>
-        <option value="Piglatin">Piglatin</option>
+        <option value="Spanish">Spanish</option>
+        <option value="English">English</option>
     </select>
 </div>
 
@@ -154,7 +154,7 @@
                 instructionText.innerText = "Say the word in the selected language";
 
 
-                setWord();
+                //setWord();
                 startEventSource();  // Start listening for updates 
             })
             .catch(error => console.error('Error:', error));

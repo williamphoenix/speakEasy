@@ -4,7 +4,7 @@ from openai import OpenAI
 class SpeechToText:
 
     @staticmethod
-    def audioToString(audioFilePath):
+    def audioToString(audioFilePath, targetLanguage):
         try:
             if not os.path.exists(".apikey"):
                     raise FileNotFoundError("API key file '.apikey' not found.")
@@ -22,13 +22,15 @@ class SpeechToText:
             try: 
                 audioFile = open(audioFilePath, "rb")
                 transcription = client.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audioFile
+                    model="gpt-4o-transcribe",
+                    file=audioFile,
+                    response_format="text",
+                    prompt=f"The audio provided is in {targetLanguage}"
                 )
             except IOError as e:
                  raise IOError(f"Error opening file '{audioFilePath}': {e}")
 
-            return transcription.text
+            return transcription
         
         except FileNotFoundError as fnf_error:
             print(f"File error: {fnf_error}")
@@ -41,4 +43,4 @@ class SpeechToText:
 
         return None
 
-#print(SpeechToText.audioToString("TranslatedAudio/Bonjour.mp3"))
+print(SpeechToText.audioToString("FrenchPrompt/air.mp3", "French"))
