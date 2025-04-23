@@ -36,13 +36,13 @@ def generateAudio():
         for lines in csvFile:
             if count < 1000:
                 #print(lines["French"])
-                speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines["Response"]}.mp3"
+                speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines['Response']}.mp3"
                 print(speech_file_path)
 
                 response = client.audio.speech.create(
                     model="gpt-4o-mini-tts",
                     voice="sage",
-                    input=f"Correct! The word was {lines["TranslatedWord"]}.",
+                    input=f"Correct! The word was {lines['TranslatedWord']}.",
                     instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
                 )
                 response.stream_to_file(speech_file_path)
@@ -99,4 +99,9 @@ def trimAudio(pathToFiles):
     print("All files processed and overwritten.")
 
 
+
+if __name__ == "__main__":
+    folder_to_trim = "SpanishPrompt"  # Change this to the folder you want to process
+    print(f"Trimming audio files in folder: {folder_to_trim}")
+    trimAudio(folder_to_trim)
 
