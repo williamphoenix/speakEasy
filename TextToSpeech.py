@@ -29,19 +29,19 @@ except Exception as e:
 
 
 def generateAudio():
-    with open("EnglishToSpanishNouns.csv", mode="r", ) as file:
+    with open("EnglishToFrenchNouns.csv", mode="r", ) as file:
         csvFile = csv.DictReader(file)
         count = 0
         for lines in csvFile:
             if count < 1000:
                 #print(lines["French"])
-                speech_file_path = Path(__file__).parent/"SpanishPrompt" / f"{lines["EnglishWord"]}.mp3"
+                speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines["Response"]}.mp3"
                 print(speech_file_path)
 
                 response = client.audio.speech.create(
                     model="gpt-4o-mini-tts",
                     voice="sage",
-                    input=f"How do you say {lines["EnglishWord"]} in Spanish?",
+                    input=f"Correct! The word was {lines["TranslatedWord"]}.",
                     instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
                 )
                 response.stream_to_file(speech_file_path)
