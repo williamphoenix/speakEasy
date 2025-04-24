@@ -132,6 +132,7 @@
         <p id="wordToTranslate">test</p>
         <br><br>
         <p><strong>Audio Level:</strong> <span id="audioLevelDisplay">0 dB</span></p>
+        <canvas id="waveform" width="600" height="100" style="display:block; margin:20px auto; background:transparent; border-radius:8px;"></canvas>
         <button class="back">Back</button>
     </div>
 
@@ -452,6 +453,34 @@
                 analyser.smoothingTimeConstant = 0.8;
 
                 audioLevelsData = new Float32Array(analyser.fftSize);  // Assign to global audioLevelsData
+
+                const canvas = document.getElementById('waveform');
+                const canvasCtx = canvas.getContext('2d');
+
+                function drawWaveform() {
+                    analyser.getFloatTimeDomainData(audioLevelsData);
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvasCtx.beginPath();
+                    const sliceWidth = canvas.width / audioLevelsData.length;
+                    let x = 0;
+                    for (let i = 0; i < audioLevelsData.length; i++) {
+                    const v = audioLevelsData[i] * 1.50;
+                    const y = (v + 1) * canvas.height / 2;
+                    if (i === 0) canvasCtx.moveTo(x, y);
+                    else          canvasCtx.lineTo(x, y);
+                    x += sliceWidth;
+                    }
+                    canvasCtx.strokeStyle = 'white';
+                    canvasCtx.lineWidth = 4;
+                    canvasCtx.lineTo(canvas.width, canvas.height/2);
+                    canvasCtx.stroke();
+                }
+
+                function visualize() {
+                    drawWaveform();
+                    requestAnimationFrame(visualize);
+                }
+                visualize();
 
                 let audioChunks = [];
 
