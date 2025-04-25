@@ -14,9 +14,10 @@ class dataGenerator:
         currentDict = dict()
         for i in range(len(current)):
             currentDict.setdefault(current["EnglishWord"][i],
-                            [current["TranslatedWord"][i],
+                        [current["TranslatedWord"][i],
                             current["Prompt"][i],
-                            current["Response"][i]])
+                            current["Response_Correct"][i],
+                            current["Response_Incorrect"][i]])
         return currentDict
 
     def getDict(self, lang):
@@ -38,12 +39,15 @@ class dataGenerator:
         return dataGenerator.precompiledDict[key][0]
     
 
-    def getEnglishAudio(self, key):
+    def getPrompt(self, key):
         return dataGenerator.precompiledDict[key][1]
     
 
-    def getTranslatedAudio(self, key):
+    def getResponse_Correct(self, key):
         return dataGenerator.precompiledDict[key][2]
+    
+    def getResponse_Incorrect(self, key):
+        return dataGenerator.precompiledDict[key][3]
     
 
 #print("This is the test csv dataframe: \n", test, "\n",
