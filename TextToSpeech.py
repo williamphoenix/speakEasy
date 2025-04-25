@@ -30,17 +30,18 @@ except Exception as e:
 
 
 def generateAudio():
-    with open("EnglishToFrenchNouns.csv", mode="r", ) as file:
+    with open("EnglishToEnglishNouns.csv", mode="r", ) as file:
         csvFile = csv.DictReader(file)
         for lines in csvFile:
-            speech_file_path = Path(__file__).parent/"FrenchResponse"/"Correct" / f"{lines["EnglishWord"]}_correct.mp3"
+            #speech_file_path = Path(__file__).parent/"EnglishResponse"/"Correct" / f"{lines["EnglishWord"]}_correct.mp3"
+            speech_file_path = Path(__file__).parent/"EnglishPrompt" / f"{lines["EnglishWord"]}.mp3"
             print(speech_file_path)
 
             response = client.audio.speech.create(
                 model="gpt-4o-mini-tts",
                 voice="sage",
-                input=f"Correct. Le mot était \"{lines["TranslatedWord"]}\".",
-                instructions=f"You are a helpful teacher asking your student to translate a word into another language. Speak only in French.",
+                input=f"How do you say \"{lines["TranslatedWord"]}\" in English?",
+                instructions=f"You are a helpful teacher asking your student to translate a word into another language.",
             )
             response.stream_to_file(speech_file_path)
 generateAudio()
@@ -97,8 +98,8 @@ def trimAudio(pathToFiles):
 
 
 
-if __name__ == "__main__":
-    folder_to_trim = "SpanishPrompt"  # Change this to the folder you want to process
-    print(f"Trimming audio files in folder: {folder_to_trim}")
-    trimAudio(folder_to_trim)
+#if __name__ == "__main__":
+    #folder_to_trim = "SpanishPrompt"  # Change this to the folder you want to process
+    #print(f"Trimming audio files in folder: {folder_to_trim}")
+    #trimAudio(folder_to_trim)
 

@@ -1,6 +1,6 @@
 from Word import Word
 from Model import Model
-from flask import Flask, request, jsonify, abort, Response
+from flask import Flask, request, jsonify, abort, Response, send_file
 
 from flask import send_from_directory
 
@@ -174,6 +174,25 @@ def uploadAudio():
                 yield data
                 data = f.read(1024)
     return Response(generateAudio(), mimetype="audio/mpeg")
+
+@app.route('/streamResponse/<result>.mp3')
+def streamResponse(result):
+    folder = os.path.join(
+        f"{controller.lessonLanguage}Response",
+        result
+    )
+    filename = f"{controller.getCurrentWord().getEnglishWord()}_{result.lower()}.mp3"
+    full_path = os.path.join(folder, filename)
+    print("Serving feedback audio from:", full_path)
+
+    if not os.path.isfile(full_path):
+        abort(404, description=f"Audio file not found: {full_path}")
+
+    return send_from_directory(folder, filename, mimetype='audio/mpeg')
+
+@app.route('/recordings/<filename>')
+def recordings(filename):
+    return send_from_directory(recordings_path, filename, mimetype='audio/mpeg')
     
 def openBrowser():
     # Wait for a moment to make sure the server is up
