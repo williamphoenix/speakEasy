@@ -69,7 +69,7 @@ class Controller:
             return
 
         if score > 0:
-            feedback = "Correct!"
+            feedback = f"Correct! The word was '{self.currentWord.getTranslatedWord()}'."
         else:
             feedback = f"Incorrect! The correct word was '{self.currentWord.getTranslatedWord()}'."
 
