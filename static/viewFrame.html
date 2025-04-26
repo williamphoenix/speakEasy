@@ -542,6 +542,10 @@
                     audioChunks.push(event.data);
                 });
 
+                mediaRecorder.addEventListener("start", () => {
+                    audioChunks =[];
+                })
+
                 mediaRecorder.addEventListener("stop", () => {
                     handleStop(audioChunks);
                 });
