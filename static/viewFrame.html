@@ -146,6 +146,8 @@
         let audio;
         let audioFetchController;
 
+        const backBtn = document.querySelector('.back');
+
         function stopAllProcesses() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
@@ -258,6 +260,7 @@
 
         function startRecording(mediaRecorder) {
             audioChunks = [];
+            backBtn.disabled = true;
             mediaRecorder.start();
             console.log("recorder started");
 
@@ -327,6 +330,7 @@
             console.log(mediaRecorder.state);
             console.log("recorder stopped");
             document.getElementById("feedbackText").innerText = "Processing...";
+            backBtn.disabled = false;
         }
 
         function handleStop(chunks) {
