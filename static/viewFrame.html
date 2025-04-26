@@ -451,11 +451,6 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log("Lesson stopped:", data.message);
-
-                // Reset UI and hide translation section
-                document.getElementById("controls").style.display = "block";
-                document.getElementById("translationSection").style.display = "none";
-                document.getElementById("feedbackText").style.display = "none";
             })
             .catch(error => {
                 console.error("Error stopping lesson:", error);
