@@ -125,8 +125,7 @@ def stopLesson():
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
     if 'audio_file' not in request.files:
-        return abort(400, 'No audio file part')
-    
+        return abort(400, 'No audio file part')  
     audio_file = request.files['audio_file']
     if audio_file.filename == '':
         return abort(400, 'No selected file')
