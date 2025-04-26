@@ -29,6 +29,7 @@ class Controller:
         self.lessonLanguage = "NA"
         self.model = Model()
         self.currentWord = None
+        self.lastAnswerCorrect = None
 
     def stopLesson(self):
         """Method to stop the lesson and terminate processes."""
@@ -60,6 +61,7 @@ class Controller:
             return
 
         score = self.model.checkTranslation(audio_path, self.currentWord.getTranslatedWord(), self.lessonLanguage)
+        self.lastAnswerCorrect = (score > 0)
         print("The score is", score)
 
         if not self.lessonRunning:
@@ -67,7 +69,7 @@ class Controller:
             return
 
         if score > 0:
-            feedback = "Correct!"
+            feedback = f"Correct! The word was '{self.currentWord.getTranslatedWord()}'."
         else:
             feedback = f"Incorrect! The correct word was '{self.currentWord.getTranslatedWord()}'."
 
@@ -75,8 +77,7 @@ class Controller:
 
         if self.lessonRunning:
             yield f"{feedback}\n"
-
-        self.awaitingResponse = False
+            self.awaitingResponse = False
 
     def startButtonPressed(self):
         self.lessonRunning = True
@@ -124,8 +125,7 @@ def stopLesson():
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
     if 'audio_file' not in request.files:
-        return abort(400, 'No audio file part')
-    
+        return abort(400, 'No audio file part')  
     audio_file = request.files['audio_file']
     if audio_file.filename == '':
         return abort(400, 'No selected file')
@@ -167,13 +167,34 @@ def wordStream():
 def uploadAudio():
     def generateAudio():
         currentWord = controller.getCurrentWord()
-        print("English audio path is:",currentWord.getEnglishAudio())
-        with open(currentWord.getEnglishAudio(), 'rb') as f:
+        print("English audio path is:",currentWord.getPrompt())
+        with open(currentWord.getPrompt(), 'rb') as f:
             data = f.read(1024)
             while data:
                 yield data
                 data = f.read(1024)
     return Response(generateAudio(), mimetype="audio/mpeg")
+
+@app.route('/uploadFeedback')
+def uploadFeedback():
+    currentWord = controller.getCurrentWord()
+    if controller.lastAnswerCorrect:
+        audio_path = currentWord.getResponse_Correct()
+    else:
+        audio_path = currentWord.getResponse_Incorrect()
+
+    if not os.path.exists(audio_path):
+        print("Feedback file missing:", audio_path)
+        return abort(404, "Feedback audio not found")
+
+    def generateFeedbackAudio():
+        with open(audio_path, 'rb') as f:
+            data = f.read(1024)
+            while data:
+                yield data
+                data = f.read(1024)
+
+    return Response(generateFeedbackAudio(), mimetype="audio/mpeg")
     
 def openBrowser():
     # Wait for a moment to make sure the server is up

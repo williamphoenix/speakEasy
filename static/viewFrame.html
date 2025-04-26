@@ -132,10 +132,14 @@
         <p id="wordToTranslate">test</p>
         <br><br>
         <p><strong>Audio Level:</strong> <span id="audioLevelDisplay">0 dB</span></p>
+        <canvas id="waveform" width="600" height="100" style="display:block; margin:20px auto; background:transparent; border-radius:8px;"></canvas>
         <button class="back">Back</button>
     </div>
 
     <script>
+        // --- Global variables for feedback/prompt separation ---
+        let pendingWord = null;
+        let feedbackAudioIsPlaying = false;
         let analyser;  // Global analyser
         let audioLevelsData;  // Global audioLevelsData
         let eventSource;
@@ -190,55 +194,29 @@
 
             eventSource.onmessage = function(event) {
                 console.log("Received word:", event.data);
-                
 
                 if (event.data.startsWith("Correct!") || event.data.startsWith("Incorrect!")) {
                     feedbackText.innerText = event.data;
+                    playFeedbackAudio();
                 } else {
-                    wordToTranslate.innerText = event.data;
-
-                    // this is where to put the code to output audio w/ the prompt + the word
-                    // after the audio is done being output, we are ready to start listening for input, (call startRecording())
-                    wordToTranslate.style.visibility = "visible";
-
-                    if (audioFetchController) {
-                        audioFetchController.abort();
+                    // It's a normal word
+                    if (feedbackAudioIsPlaying === true) {
+                        // Feedback audio is still playing, queue this word
+                        pendingWord = event.data;
+                    } else {
+                        // Feedback audio is not playing, display and play prompt immediately
+                        wordToTranslate.innerText = event.data;
+                        wordToTranslate.style.visibility = "visible";
+                        playPromptAudio(event.data);
                     }
-
-                    audioFetchController = new AbortController();
-                    const signal = audioFetchController.signal;
-
-                    fetch('/uploadAudio', { signal })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Network reponse was not ok");
-                        }
-                        return response.blob();
-                        })
-                        .then(blob => {
-                            const audioBlobUrl = URL.createObjectURL(blob);
-                            audio = new Audio(audioBlobUrl);
-                            audio.addEventListener('ended', () => {
-                                console.log('Audio finished playing');
-                                startRecording(mediaRecorder)
-                            });
-                            audio.play();
-                        })
-                        .catch(error => {
-                            if (error.name === "AbortError") {
-                                console.log("Audio fetch aborted.");
-                            } else {
-                                console.error("Fetch error:", error);
-                            }
-                        });
-                    }
-                };
-
-                eventSource.onerror = function() {
-                    console.error("EventSource failed.");
-                    eventSource.close();
-                };
+                }
             };
+
+            eventSource.onerror = function() {
+                console.error("EventSource failed.");
+                eventSource.close();
+            };
+        }
             
             
 
@@ -281,6 +259,7 @@
         }
 
         function startRecording(mediaRecorder) {
+            audioChunks = [];
             backBtn.disabled = true;
             mediaRecorder.start();
             console.log("recorder started");
@@ -375,9 +354,85 @@
                 console.log("Feedback received:", feedback);
                 document.getElementById("feedbackText").innerText = feedback;
 
+                console.log("Playing Feedback Audio...")
+
+                playFeedbackAudio();
+
             })
             .catch(error => console.error('Error uploading file:', error));
         }
+
+        function playFeedbackAudio() {
+            if (audioFetchController) {
+                audioFetchController.abort();
+            }
+
+            audioFetchController = new AbortController();
+            const signal = audioFetchController.signal;
+            feedbackAudioIsPlaying = true;
+
+            fetch('/uploadFeedback', { signal })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const feedbackAudioBlobUrl = URL.createObjectURL(blob);
+                    const feedbackAudio = new Audio(feedbackAudioBlobUrl);
+                    feedbackAudio.addEventListener('ended', () => {
+                        feedbackAudioIsPlaying = false;
+                        if (pendingWord !== null) {
+                            wordToTranslate.innerText = pendingWord;
+                            wordToTranslate.style.visibility = "visible";
+                            playPromptAudio(pendingWord);
+                            pendingWord = null;
+                        }
+                    });
+                    feedbackAudio.play();
+                })
+                .catch(error => {
+                    if (error.name === "AbortError") {
+                        console.log("Feedback fetch aborted.");
+                    } else {
+                        console.error("Fetch feedback error:", error);
+                    }
+                    feedbackAudioIsPlaying = false;
+                });
+        }
+
+        function playPromptAudio(wordText) {
+            if (audioFetchController) {
+                audioFetchController.abort();
+            }
+            audioFetchController = new AbortController();
+            const signal = audioFetchController.signal;
+            fetch('/uploadAudio', { signal })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const audioBlobUrl = URL.createObjectURL(blob);
+                    audio = new Audio(audioBlobUrl);
+                    audio.addEventListener('ended', () => {
+                        startRecording(mediaRecorder);
+                    });
+                    audio.play();
+                })
+                .catch(error => {
+                    if (error.name === "AbortError") {
+                        console.log("Prompt audio fetch aborted.");
+                    } else {
+                        console.error("Prompt fetch error:", error);
+                    }
+                });
+        }
+
+
 
         const start = document.querySelector(".start");
         const startRecord = document.querySelector(".startRecord");
@@ -451,6 +506,34 @@
                 analyser.smoothingTimeConstant = 0.8;
 
                 audioLevelsData = new Float32Array(analyser.fftSize);  // Assign to global audioLevelsData
+
+                const canvas = document.getElementById('waveform');
+                const canvasCtx = canvas.getContext('2d');
+
+                function drawWaveform() {
+                    analyser.getFloatTimeDomainData(audioLevelsData);
+                    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvasCtx.beginPath();
+                    const sliceWidth = canvas.width / audioLevelsData.length;
+                    let x = 0;
+                    for (let i = 0; i < audioLevelsData.length; i++) {
+                    const v = audioLevelsData[i] * 1.50;
+                    const y = (v + 1) * canvas.height / 2;
+                    if (i === 0) canvasCtx.moveTo(x, y);
+                    else          canvasCtx.lineTo(x, y);
+                    x += sliceWidth;
+                    }
+                    canvasCtx.strokeStyle = 'white';
+                    canvasCtx.lineWidth = 4;
+                    canvasCtx.lineTo(canvas.width, canvas.height/2);
+                    canvasCtx.stroke();
+                }
+
+                function visualize() {
+                    drawWaveform();
+                    requestAnimationFrame(visualize);
+                }
+                visualize();
 
                 let audioChunks = [];
 

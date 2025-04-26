@@ -23,7 +23,8 @@ class Model:
         randomWord = random.choice(list(dictionary.keys()))
         return Word(randomWord, dictionary[randomWord][0],
                     dictionary[randomWord][1],
-                    dictionary[randomWord][2])
+                    dictionary[randomWord][2],
+                    dictionary[randomWord][3])
     
 
 #test = Model(Word("hello","bonjour","hello/path.mp3","bonjour/path.mp3"))
