@@ -1,12 +1,12 @@
 import os
 import csv
 import subprocess
+
 from pathlib import Path
 from openai import OpenAI
 
 #Go through Translation CSV, save speech to text audio files to directories, write path to cvs file
 #Please don't run the functions in this file without asking 🥺
-
 
 try:
     if not os.path.exists(".apikey"):
@@ -27,7 +27,6 @@ except IOError as io_error:
     print(f"I/O error: {io_error}")
 except Exception as e:
     print(f"An unexpected error occurred: {e}")
-
 
 def generateAudio():
     with open("EnglishToEnglishNouns.csv", mode="r", ) as file:
@@ -95,10 +94,5 @@ def trimAudio(pathToFiles):
 
     print("All files processed and overwritten.")
 
-
-
 if __name__ == "__main__":
     folder_to_trim = "SpanishPrompt"  # Change this to the folder you want to process
-    #print(f"Trimming audio files in folder: {folder_to_trim}")
-    #trimAudio(folder_to_trim)
-

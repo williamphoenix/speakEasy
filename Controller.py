@@ -1,15 +1,13 @@
-from Word import Word
-from Model import Model
-from flask import Flask, request, jsonify, abort, Response
-
-from flask import send_from_directory
-
-from flask_cors import CORS 
 import webbrowser
 import threading
 import ffmpeg
 import os
 import time
+
+from Word import Word
+from Model import Model
+from flask import Flask, request, jsonify, abort, Response, send_from_directory
+from flask_cors import CORS 
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0

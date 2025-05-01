@@ -1,6 +1,7 @@
+import random
+
 from Word import Word
 from dataGenerator import dataGenerator
-import random
 from SpeechToText import SpeechToText
 
 class Model:
@@ -17,7 +18,6 @@ class Model:
         else:
             return 0
        
-
     def getRandomWord(self, language):
         dictionary = self.DG.getDict(language)
         randomWord = random.choice(list(dictionary.keys()))
@@ -25,14 +25,3 @@ class Model:
                     dictionary[randomWord][1],
                     dictionary[randomWord][2],
                     dictionary[randomWord][3])
-    
-
-#test = Model(Word("hello","bonjour","hello/path.mp3","bonjour/path.mp3"))
-#testWord = test.getRandomWord()
-#print(testWord.getEnglishWord(),
-#      testWord.getTranslatedWord(),
-#      testWord.getEnglishAudio(),
-#      testWord.getTranslatedAudio())
-
-# m = Model()
-# print(m.checkTranslation("TranslatedAudio/Bonjour.mp3", "Bonjour"))

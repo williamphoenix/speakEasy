@@ -20,8 +20,3 @@ class Word:
     
     def getResponse_Incorrect(self):
         return self.response_incorrect
-    
-#test= Word("hi","marhaba","path1","path2")
-#word1 = test.getEnglishWord()
-#word2 = test.getEnglishAudio()
-#print(word1, word2)
